@@ -45,17 +45,19 @@ export function createScene() {
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
 
-  // Sky dome sphere — actual 3D geometry so clouds have parallax with camera movement
+  // Use the sky canvas as BOTH a background texture AND a 3D dome
+  // Background texture ensures no white edges ever
+  scene.background = skyTexture;
+
+  // Sky dome sphere for parallax depth effect
   const skyGeo = new THREE.SphereGeometry(200, 32, 16);
   const skyMat = new THREE.MeshBasicMaterial({
     map: skyTexture,
-    side: THREE.BackSide, // render inside of sphere
+    side: THREE.BackSide,
+    fog: false, // dome should NOT be affected by fog
   });
   const skyDome = new THREE.Mesh(skyGeo, skyMat);
   scene.add(skyDome);
-
-  // Set a solid blue background as fallback (visible if sphere has gaps)
-  scene.background = new THREE.Color(0x5b9de5);
 
   // Fog
   scene.fog = new THREE.FogExp2(0xa0d0f5, 0.004); // blends into sky blue horizon
