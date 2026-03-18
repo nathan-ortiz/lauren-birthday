@@ -4,58 +4,60 @@ import { COLORS } from '../utils/Colors.js';
 export function createScene() {
   const scene = new THREE.Scene();
 
-  // Sky dome using a custom shader — no textures, no canvas, can't break
-  // Computes sky color from vertex direction: blue at top, warm at horizon
-  // Includes procedural cloud-like noise for natural variation
-  const skyDome = new THREE.Mesh(
-    new THREE.SphereGeometry(190, 48, 24),
-    new THREE.ShaderMaterial({
-      side: THREE.BackSide,
-      depthWrite: false,
-      uniforms: {},
-      vertexShader: `
-        varying vec3 vDir;
-        void main() {
-          vDir = normalize(position);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vDir;
-        void main() {
-          float h = vDir.y; // -1 (bottom) to +1 (top)
+  // Sky: vertex-colored sphere — no textures, no shaders, no canvas
+  // Just a huge sphere with blue-to-white vertex colors, rendered from inside
+  const skyGeo = new THREE.SphereGeometry(180, 32, 20);
+  const skyColors = new Float32Array(skyGeo.attributes.position.count * 3);
+  const posAttr = skyGeo.attributes.position;
 
-          // Sky gradient
-          vec3 zenith  = vec3(0.22, 0.47, 0.83);  // rich blue
-          vec3 mid     = vec3(0.48, 0.72, 0.92);  // sky blue
-          vec3 horizon = vec3(0.78, 0.88, 0.95);  // pale blue
-          vec3 ground  = vec3(0.82, 0.85, 0.78);  // warm gray-green
+  for (let i = 0; i < posAttr.count; i++) {
+    const y = posAttr.getY(i); // -180 to +180
+    const t = (y + 180) / 360; // 0 (bottom) to 1 (top)
 
-          vec3 color;
-          if (h > 0.3) {
-            color = mix(mid, zenith, (h - 0.3) / 0.7);
-          } else if (h > 0.0) {
-            color = mix(horizon, mid, h / 0.3);
-          } else {
-            color = mix(ground, horizon, (h + 1.0) / 1.0);
-          }
+    // Color gradient: warm bottom → pale horizon → sky blue → deep blue top
+    let r, g, b;
+    if (t > 0.65) {
+      // Upper sky: deep blue
+      const s = (t - 0.65) / 0.35;
+      r = 0.28 - s * 0.06;
+      g = 0.52 - s * 0.04;
+      b = 0.88 + s * 0.05;
+    } else if (t > 0.45) {
+      // Mid sky: sky blue
+      const s = (t - 0.45) / 0.2;
+      r = 0.48 - s * 0.2;
+      g = 0.72 - s * 0.2;
+      b = 0.93 - s * 0.05;
+    } else if (t > 0.3) {
+      // Horizon: pale blue-white
+      const s = (t - 0.3) / 0.15;
+      r = 0.75 - s * 0.27;
+      g = 0.85 - s * 0.13;
+      b = 0.92 + s * 0.01;
+    } else {
+      // Below horizon: warm earth tone
+      const s = t / 0.3;
+      r = 0.75;
+      g = 0.78 + s * 0.07;
+      b = 0.72 + s * 0.2;
+    }
 
-          // Soft cloud bands near horizon
-          float cloudBand = smoothstep(0.05, 0.25, h) * (1.0 - smoothstep(0.25, 0.5, h));
-          float noise = fract(sin(vDir.x * 12.9 + vDir.z * 78.2) * 43758.5) * 0.5 + 0.5;
-          float cloud = cloudBand * noise * 0.3;
-          color = mix(color, vec3(1.0), cloud);
+    skyColors[i * 3] = r;
+    skyColors[i * 3 + 1] = g;
+    skyColors[i * 3 + 2] = b;
+  }
+  skyGeo.setAttribute('color', new THREE.BufferAttribute(skyColors, 3));
 
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `,
-    })
-  );
+  const skyDome = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    side: THREE.BackSide,
+    toneMapped: false,
+  }));
   scene.add(skyDome);
   scene._skyDome = skyDome;
 
-  // Solid blue background fallback
-  scene.background = new THREE.Color(0x7bb8ed);
+  // No scene.background — the dome sphere IS the background
+  // If dome fails, renderer clear color (set in createRenderer) handles it
 
   // No fog — was causing white edges
   // scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
