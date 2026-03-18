@@ -61,8 +61,8 @@ export function createScene() {
   skyDome.renderOrder = -1; // render before everything else
   scene.add(skyDome);
 
-  // Fog
-  scene.fog = new THREE.FogExp2(0xa0d0f5, 0.004); // blends into sky blue horizon
+  // Very light fog — just enough to soften distant objects, NOT enough to create white edges
+  scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
 
   // Hemisphere light
   const hemiLight = new THREE.HemisphereLight(0xffecd2, 0x8ec5c0, 0.8);
@@ -100,7 +100,7 @@ export function createRenderer() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.25;
+  renderer.toneMappingExposure = 1.1;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setClearColor(0x7bb8ed, 1); // sky blue clear color as fallback
   return renderer;
