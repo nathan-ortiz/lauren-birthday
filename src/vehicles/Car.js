@@ -278,15 +278,15 @@ export class Car {
     goldFill.position.set(0, 0.85 * S, 0);
     g.add(goldFill);
 
-    // ── Coins on top — nicely packed, extra on the right side ──
-    for (let i = 0; i < 16; i++) {
-      const sz = 0.15 * S * (0.8 + Math.random() * 0.4);
-      const coin = new THREE.Mesh(new THREE.SphereGeometry(sz, 5, 4), goldShiny);
-      // Bias slightly right (+x in local = right from camera's POV) to balance
-      const cx = (Math.random() - 0.4) * 1.5 * S;
-      const cz = (Math.random() - 0.5) * 0.8 * S;
-      const cy = 0.95 * S + Math.random() * 0.2 * S;
-      coin.position.set(cx, cy, cz);
+    // ── Coins on top — fixed positions for guaranteed balanced look ──
+    const coinSpots = [
+      [-0.6, 0, 1.0], [-0.3, 0.25, 1.05], [0, -0.1, 0.98], [0.3, 0.2, 1.02], [0.6, 0.05, 1.0],
+      [-0.45, -0.2, 1.08], [0.15, 0.3, 1.1], [0.5, -0.15, 1.05], [-0.15, -0.3, 1.0], [0.4, 0.35, 1.08],
+      [-0.55, 0.3, 1.05], [0.25, -0.25, 1.02], [-0.2, 0.15, 1.12], [0.55, 0.1, 1.06], [-0.4, -0.1, 1.03], [0.1, 0.0, 1.08],
+    ];
+    for (const [cx, cz, cy] of coinSpots) {
+      const coin = new THREE.Mesh(new THREE.SphereGeometry(0.15 * S, 5, 4), goldShiny);
+      coin.position.set(cx * S, cy * S, cz * S);
       g.add(coin);
     }
 
