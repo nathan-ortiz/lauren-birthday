@@ -49,45 +49,28 @@ export function createLogStation(scene, world) {
   // Seats — 3 rows of bench seats inside the log
   const seatMat = getMaterial(0x8b5e3c);
   for (let s = 0; s < 3; s++) {
-    // Seat back
-    const backGeo = new THREE.BoxGeometry(0.12, 0.6, hullRadius * 1.2);
+    const backGeo = new THREE.BoxGeometry(0.12, 0.6, 1.5);
     const back = new THREE.Mesh(backGeo, seatMat);
     back.position.set(-2 + s * 2, 0.5, 0);
     logGroup.add(back);
 
-    // Seat bench
-    const benchGeo = new THREE.BoxGeometry(0.8, 0.12, hullRadius * 1.2);
+    const benchGeo = new THREE.BoxGeometry(0.8, 0.12, 1.5);
     const bench = new THREE.Mesh(benchGeo, seatMat);
     bench.position.set(-2 + s * 2 + 0.3, 0.25, 0);
     logGroup.add(bench);
   }
 
-  // Pointed bow (front of log)
-  const bowGeo = new THREE.ConeGeometry(hullRadius * 0.8, 1.5, 8);
-  const bow = new THREE.Mesh(bowGeo, getMaterial(0x6b3a1f));
-  bow.rotation.z = -Math.PI / 2;
-  bow.position.set(hullLength / 2 + 0.5, 0, 0);
+  // Bow (front end)
+  const bowGeo = new THREE.BoxGeometry(0.3, 0.8, 2.2);
+  const bow = new THREE.Mesh(bowGeo, getMaterial(0x5a2d0c));
+  bow.position.set(hullLength / 2, 0.2, 0);
   logGroup.add(bow);
 
-  // Stern (back end — flat cap)
-  const sternGeo = new THREE.BoxGeometry(0.2, hullRadius * 1.2, hullRadius * 1.8);
+  // Stern (back end)
+  const sternGeo = new THREE.BoxGeometry(0.3, 0.8, 2.2);
   const stern = new THREE.Mesh(sternGeo, getMaterial(0x5a2d0c));
-  stern.position.set(-hullLength / 2, 0.1, 0);
+  stern.position.set(-hullLength / 2, 0.2, 0);
   logGroup.add(stern);
-
-  // Water splash decoration at the base
-  const splashGeo = new THREE.SphereGeometry(0.3, 6, 4);
-  const splashMat = getMaterial(COLORS.water, { transparent: true, opacity: 0.5 });
-  for (let i = 0; i < 6; i++) {
-    const splash = new THREE.Mesh(splashGeo, splashMat);
-    splash.position.set(
-      hullLength / 2 + 0.5 + Math.random() * 1.5,
-      -0.5 + Math.random() * 0.5,
-      (Math.random() - 0.5) * 2
-    );
-    splash.scale.setScalar(0.5 + Math.random() * 0.8);
-    logGroup.add(splash);
-  }
 
   group.add(logGroup);
 
