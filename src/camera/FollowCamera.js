@@ -4,8 +4,8 @@ export class FollowCamera {
   constructor(camera, isMobile) {
     this.camera = camera;
     this.isMobile = isMobile;
-    this.baseOffset = new THREE.Vector3(0, 9, -15);
-    this.lookOffset = new THREE.Vector3(0, 1, 4);
+    this.baseOffset = new THREE.Vector3(0, 11, -17);
+    this.lookOffset = new THREE.Vector3(0, 1, 3);
     this.lerpFactor = 0.08;
     this.currentLookTarget = new THREE.Vector3();
 
@@ -71,11 +71,12 @@ export class FollowCamera {
     this.orbitAngle += (this.orbitTarget - this.orbitAngle) * this.orbitSpeed;
     this.pitchOffset += (this.pitchTarget - this.pitchOffset) * this.orbitSpeed;
 
-    // Apply orbit + pitch to camera offset
-    const totalRotation = carRotationY + this.orbitAngle;
+    // Camera always follows behind the car based on car's rotation
     const adjustedOffset = this.baseOffset.clone();
-    adjustedOffset.y += this.pitchOffset; // raise/lower camera based on mouse Y
+    adjustedOffset.y += this.pitchOffset;
 
+    // Only car rotation determines camera orbit — mouse orbit is additive
+    const totalRotation = carRotationY + this.orbitAngle;
     const rotatedOffset = adjustedOffset
       .clone()
       .applyAxisAngle(new THREE.Vector3(0, 1, 0), totalRotation);
@@ -83,7 +84,9 @@ export class FollowCamera {
     const targetPos = carPosition.clone().add(rotatedOffset);
     this.camera.position.lerp(targetPos, this.lerpFactor);
 
-    const lookTarget = carPosition.clone().add(this.lookOffset);
+    // ALWAYS look at the car — keeps car centered in frame
+    const lookTarget = carPosition.clone();
+    lookTarget.y += 1.5; // look at car body height, not ground
     this.currentLookTarget.lerp(lookTarget, this.lerpFactor);
     this.camera.lookAt(this.currentLookTarget);
   }

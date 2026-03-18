@@ -71,16 +71,13 @@ export class Car {
   createWheels() {
     const wheels = [];
     const mat = getMaterial(COLORS.carAccent);
-    for (const [x, y, z] of [[-0.85, 0.4, 1.2], [0.85, 0.4, 1.2], [-0.85, 0.4, -1.2], [0.85, 0.4, -1.2]]) {
-      // Use a group so the cylinder orientation doesn't interfere with car rotation
-      const group = new THREE.Group();
-      const geo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8);
+    // Use simple box wheels — no cylinder rotation artifacts
+    for (const [x, y, z] of [[-1.05, 0.35, 1.2], [1.05, 0.35, 1.2], [-1.05, 0.35, -1.2], [1.05, 0.35, -1.2]]) {
+      const geo = new THREE.BoxGeometry(0.25, 0.7, 0.7);
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.rotation.z = Math.PI / 2; // orient cylinder sideways within the group
       mesh.castShadow = true;
-      group.add(mesh);
-      group._lp = new THREE.Vector3(x, y, z);
-      wheels.push(group);
+      mesh._lp = new THREE.Vector3(x, y, z);
+      wheels.push(mesh);
     }
     return wheels;
   }
@@ -177,13 +174,11 @@ export class Car {
     this.mesh.position.copy(this.body.position);
     this.mesh.quaternion.copy(this.body.quaternion);
 
-    // Wheels follow car — only Y rotation applied (no axle spin)
-    const yAngle = new THREE.Euler().setFromQuaternion(this.mesh.quaternion, 'YXZ').y;
-    const yOnlyQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yAngle, 0));
+    // Wheels follow car body exactly
     for (const w of this.wheelMeshes) {
       const wp = w._lp.clone().applyQuaternion(this.mesh.quaternion).add(this.mesh.position);
       w.position.copy(wp);
-      w.quaternion.copy(yOnlyQ);
+      w.quaternion.copy(this.mesh.quaternion);
     }
 
     if (this.antenna) {

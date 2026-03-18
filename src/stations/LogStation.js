@@ -25,13 +25,12 @@ export function createLogStation(scene, world) {
   log.castShadow = true;
   group.add(log);
 
-  // Bark rings (darker bands)
+  // Bark bands (darker strips around the log — simple boxes, no rotation artifacts)
   for (let i = -4; i <= 4; i += 2) {
-    const ringGeo = new THREE.CylinderGeometry(1.45, 1.45, 0.15, 10);
-    ringGeo.rotateZ(Math.PI / 2);
-    const ring = new THREE.Mesh(ringGeo, getMaterial(0x6b4226));
-    ring.position.set(i, 1.4, 0);
-    group.add(ring);
+    const bandGeo = new THREE.BoxGeometry(0.15, 2.9, 2.9);
+    const band = new THREE.Mesh(bandGeo, getMaterial(0x6b4226));
+    band.position.set(i, 1.4, 0);
+    group.add(band);
   }
 
   // Cross-section caps — simple painted circles, no thin torus rings
@@ -90,21 +89,13 @@ export function createLogStation(scene, world) {
   physicsBody.quaternion.setFromEuler(0, 0, Math.PI / 2);
   world.addBody(physicsBody);
 
-  // Hill collision — stacked flat boxes forming a climbable ramp
-  // Each ring is a flat cylinder at increasing heights
-  const hillSteps = 8;
-  for (let s = 0; s < hillSteps; s++) {
-    const t = s / hillSteps;
-    const radius = 16 * (1 - t * 0.6); // wider at base, narrower at top
-    const height = 0.8;
-    const y = s * height;
-    const stepBody = new CANNON.Body({
-      type: CANNON.Body.STATIC,
-      shape: new CANNON.Cylinder(radius, radius, height, 12),
-      position: new CANNON.Vec3(pos.x, y + height / 2, pos.z),
-    });
-    world.addBody(stepBody);
-  }
+  // Hill collision — a cone shape creates a natural drivable slope
+  const hillBody = new CANNON.Body({
+    type: CANNON.Body.STATIC,
+    shape: new CANNON.Cylinder(2, 18, 6, 16), // narrow top, wide base, gentle slope
+    position: new CANNON.Vec3(pos.x, 2.5, pos.z), // half-height above ground
+  });
+  world.addBody(hillBody);
 
   return {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),

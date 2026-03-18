@@ -73,7 +73,7 @@ function createPaths(scene) {
     ...interpolatePath(0, 0, 30, -25, 20),
     ...interpolatePath(0, 0, -35, 22, 25),
     ...interpolatePath(0, 0, 15, 22, 15),
-    ...interpolatePath(0, 0, -20, -30, 20),
+    ...interpolatePath(0, 0, -20, -35, 25), // extends all the way to hill top
   ];
 
   const placed = new Set();
@@ -82,8 +82,16 @@ function createPaths(scene) {
     if (placed.has(key)) return;
     placed.add(key);
 
+    // Compute Y — tiles follow the hill slope if near the log hill
+    const hillCx = -20, hillCz = -35;
+    const distToHill = Math.sqrt((x - hillCx) ** 2 + (z - hillCz) ** 2);
+    let tileY = 0.05;
+    if (distToHill < 18) {
+      // Hill height at this distance (matches terrain vertex displacement)
+      tileY = Math.cos((distToHill / 18) * Math.PI * 0.5) * 5 + 0.05;
+    }
     const tile = new THREE.Mesh(tileGeo, i % 3 === 0 ? tileMat2 : tileMat);
-    tile.position.set(x, 0.05, z);
+    tile.position.set(x, tileY, z);
     tile.rotation.y = rand(-0.1, 0.1);
     tile.receiveShadow = true;
     scene.add(tile);
