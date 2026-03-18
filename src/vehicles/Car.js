@@ -47,32 +47,34 @@ export class Car {
 
     const bumperGeo = new THREE.BoxGeometry(2.1, 0.25, 0.3);
     const bumperMat = getMaterial(COLORS.carAccent);
-    group.add(Object.assign(new THREE.Mesh(bumperGeo, bumperMat), { position: new THREE.Vector3(0, 0.3, 1.8) }));
-    group.add(Object.assign(new THREE.Mesh(bumperGeo, bumperMat), { position: new THREE.Vector3(0, 0.3, -1.8) }));
+    const fb = new THREE.Mesh(bumperGeo, bumperMat); fb.position.set(0, 0.3, 1.8); group.add(fb);
+    const rb = new THREE.Mesh(bumperGeo, bumperMat); rb.position.set(0, 0.3, -1.8); group.add(rb);
 
     const lightGeo = new THREE.BoxGeometry(0.3, 0.2, 0.15);
     const hlMat = new THREE.MeshStandardMaterial({ color: COLORS.carLights, emissive: COLORS.carLights, emissiveIntensity: 2.0, flatShading: true });
-    group.add(Object.assign(new THREE.Mesh(lightGeo, hlMat), { position: new THREE.Vector3(-0.7, 0.5, 1.85) }));
-    group.add(Object.assign(new THREE.Mesh(lightGeo, hlMat), { position: new THREE.Vector3(0.7, 0.5, 1.85) }));
+    const hl1 = new THREE.Mesh(lightGeo, hlMat); hl1.position.set(-0.7, 0.5, 1.85); group.add(hl1);
+    const hl2 = new THREE.Mesh(lightGeo, hlMat); hl2.position.set(0.7, 0.5, 1.85); group.add(hl2);
 
     const stripGeo = new THREE.BoxGeometry(1.8, 0.08, 0.08);
-    group.add(Object.assign(new THREE.Mesh(stripGeo, hlMat), { position: new THREE.Vector3(0, 0.5, 1.88) }));
+    const strip = new THREE.Mesh(stripGeo, hlMat); strip.position.set(0, 0.5, 1.88); group.add(strip);
 
     const tlMat = new THREE.MeshStandardMaterial({ color: 0xff2222, emissive: 0xff2222, emissiveIntensity: 1.8, flatShading: true });
-    group.add(Object.assign(new THREE.Mesh(lightGeo, tlMat), { position: new THREE.Vector3(-0.7, 0.5, -1.85) }));
-    group.add(Object.assign(new THREE.Mesh(lightGeo, tlMat), { position: new THREE.Vector3(0.7, 0.5, -1.85) }));
-    group.add(Object.assign(new THREE.Mesh(stripGeo.clone(), tlMat), { position: new THREE.Vector3(0, 0.5, -1.88) }));
+    const tl1 = new THREE.Mesh(lightGeo, tlMat); tl1.position.set(-0.7, 0.5, -1.85); group.add(tl1);
+    const tl2 = new THREE.Mesh(lightGeo, tlMat); tl2.position.set(0.7, 0.5, -1.85); group.add(tl2);
+    const tlStrip = new THREE.Mesh(stripGeo.clone(), tlMat); tlStrip.position.set(0, 0.5, -1.88); group.add(tlStrip);
 
     const rackMat = getMaterial(COLORS.carAccent);
-    group.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.06, 1.4), rackMat), { position: new THREE.Vector3(0, 1.55, -0.2) }));
+    const rack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.06, 1.4), rackMat); rack.position.set(0, 1.55, -0.2); group.add(rack);
 
     return group;
   }
 
   createAntenna() {
     const group = new THREE.Group();
-    group.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1, 4), getMaterial(COLORS.carAccent)), { position: new THREE.Vector3(0, 0.5, 0) }));
-    group.add(Object.assign(new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 4), getMaterial(COLORS.gold)), { position: new THREE.Vector3(0, 1.0, 0) }));
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1, 4), getMaterial(COLORS.carAccent));
+    rod.position.set(0, 0.5, 0); group.add(rod);
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 4), getMaterial(COLORS.gold));
+    ball.position.set(0, 1.0, 0); group.add(ball);
     group.position.set(-0.5, 1.5, -0.8);
     this.mesh.add(group);
     this.antenna = group;
