@@ -72,8 +72,11 @@ export class FollowCamera {
     this.pitchOffset += (this.pitchTarget - this.pitchOffset) * this.orbitSpeed;
 
     // Camera always follows behind the car based on car's rotation
-    const adjustedOffset = this.baseOffset.clone();
-    adjustedOffset.y += this.pitchOffset;
+    // In portrait mode, zoom out more so the scene isn't too tight
+    const portrait = window.innerHeight > window.innerWidth;
+    const zoomScale = portrait ? 1.45 : 1;
+    const adjustedOffset = this.baseOffset.clone().multiplyScalar(zoomScale);
+    adjustedOffset.y = this.baseOffset.y * zoomScale + this.pitchOffset;
 
     // Only car rotation determines camera orbit — mouse orbit is additive
     const totalRotation = carRotationY + this.orbitAngle;
