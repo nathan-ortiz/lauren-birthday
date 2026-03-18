@@ -52,6 +52,9 @@ export class MobileControls {
       e.preventDefault();
       this.interactPressed = true;
     });
+    this.actionBtn.addEventListener('click', () => {
+      this.interactPressed = true;
+    });
   }
 
   showActionButton() {

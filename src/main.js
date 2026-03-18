@@ -51,7 +51,7 @@ async function init() {
   const car = new Car(scene, world);
 
   // Camera
-  const followCamera = new FollowCamera(camera);
+  const followCamera = new FollowCamera(camera, isMobile);
 
   // Controls
   const keyboard = new KeyboardControls();
@@ -95,7 +95,7 @@ async function init() {
 
   // Hide loading, show start screen
   loadingScreen.hide();
-  const startScreen = new StartScreen();
+  const startScreen = new StartScreen(isMobile);
   await startScreen.show();
 
   // Start game loop
