@@ -4,57 +4,37 @@ import { COLORS } from '../utils/Colors.js';
 export function createScene() {
   const scene = new THREE.Scene();
 
-  // Sky: CubeTexture — 6 canvas faces forming a cube map
-  // Three.js renders cube map backgrounds with proper 3D perspective
-  // No dome mesh needed — this is the native Three.js way to do 3D skies
-  const skySize = 256;
-  function makeSkyFace(topHex, bottomHex, addClouds) {
-    const c = document.createElement('canvas');
-    c.width = skySize;
-    c.height = skySize;
-    const cx = c.getContext('2d');
-    const g = cx.createLinearGradient(0, 0, 0, skySize);
-    g.addColorStop(0, topHex);
-    g.addColorStop(1, bottomHex);
-    cx.fillStyle = g;
-    cx.fillRect(0, 0, skySize, skySize);
-    if (addClouds) {
-      cx.fillStyle = 'rgba(255,255,255,0.25)';
-      for (let i = 0; i < 5; i++) {
-        const px = Math.random() * skySize;
-        const py = skySize * 0.3 + Math.random() * skySize * 0.4;
-        const pr = 20 + Math.random() * 30;
-        for (let j = 0; j < 4; j++) {
-          cx.beginPath();
-          cx.ellipse(px + (j - 1.5) * pr * 0.4, py, pr * (0.5 + j * 0.12), pr * 0.4, 0, 0, Math.PI * 2);
-          cx.fill();
-        }
-      }
+  // Sky background — flat canvas texture (confirmed working)
+  const skyCanvas = document.createElement('canvas');
+  skyCanvas.width = 512;
+  skyCanvas.height = 512;
+  const ctx = skyCanvas.getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, '#3a7bd5');
+  grad.addColorStop(0.3, '#5b9de5');
+  grad.addColorStop(0.55, '#7bb8ed');
+  grad.addColorStop(0.75, '#a0d0f5');
+  grad.addColorStop(0.9, '#d4e8f5');
+  grad.addColorStop(1, '#e8ddd0');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 512);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  const clouds = [
+    [80, 100, 50], [200, 130, 60], [350, 90, 45], [120, 180, 40],
+    [400, 110, 50], [280, 160, 35], [50, 150, 40], [450, 80, 35],
+    [300, 60, 45], [160, 220, 30],
+  ];
+  for (const [cx2, cy, r] of clouds) {
+    for (let j = 0; j < 4; j++) {
+      ctx.beginPath();
+      ctx.ellipse(cx2 + (j - 1.5) * r * 0.4, cy + Math.sin(j) * r * 0.1, r * (0.5 + j * 0.12), r * 0.4, 0, 0, Math.PI * 2);
+      ctx.fill();
     }
-    return c;
   }
 
-  function makeSolidFace(hex) {
-    const c = document.createElement('canvas');
-    c.width = skySize;
-    c.height = skySize;
-    const cx = c.getContext('2d');
-    cx.fillStyle = hex;
-    cx.fillRect(0, 0, skySize, skySize);
-    return c;
-  }
-
-  // CubeTexture face order: +X, -X, +Y, -Y, +Z, -Z
-  const cubeTexture = new THREE.CubeTexture([
-    makeSkyFace('#4a8ad4', '#c0daf0', true),  // +X right
-    makeSkyFace('#5090d8', '#c5ddf2', true),  // -X left
-    makeSolidFace('#3a78cc'),                  // +Y top (deep blue)
-    makeSolidFace('#c8d8c0'),                  // -Y bottom (warm green-gray)
-    makeSkyFace('#4888d2', '#bdd8ef', true),  // +Z front
-    makeSkyFace('#5292da', '#c8def3', true),  // -Z back
-  ]);
-  cubeTexture.needsUpdate = true;
-  scene.background = cubeTexture;
+  scene.background = new THREE.CanvasTexture(skyCanvas);
 
   // No fog — was causing white edges
   // scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
