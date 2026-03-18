@@ -1,8 +1,5 @@
 import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+// Bloom post-processing removed — was overriding scene.background to white
 import { createScene, createRenderer, createCamera } from './scene/SceneSetup.js';
 import { createTerrain } from './scene/Terrain.js';
 import { createWater } from './scene/Water.js';
@@ -39,18 +36,7 @@ async function init() {
   const camera = createCamera();
   document.getElementById('game-container').appendChild(renderer.domElement);
 
-  // Post-processing: bloom makes emissive materials glow
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-
-  const bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.35,  // strength — subtle warm glow
-    0.3,   // radius — tight glow, not washy
-    0.92   // threshold — only strongly emissive things bloom (not white surfaces)
-  );
-  composer.addPass(bloomPass);
-  composer.addPass(new OutputPass());
+  // No post-processing — render directly for reliable sky background
 
   // Physics
   const { world, carMaterial } = createPhysicsWorld();
@@ -102,14 +88,10 @@ async function init() {
     isMobile
   );
 
-  // Handle resize — update renderer AND composer
+  // Handle resize
   window.addEventListener('resize', () => {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    renderer.setSize(w, h);
+    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    composer.setSize(w, h);
-    bloomPass.resolution.set(w, h);
     followCamera.resize();
   });
 
@@ -176,8 +158,7 @@ async function init() {
     petals.update(delta);
     updateBirthdayText(letters, bodies);
 
-    // Render with bloom post-processing
-    composer.render();
+    renderer.render(scene, camera);
   }
 
   animate();
