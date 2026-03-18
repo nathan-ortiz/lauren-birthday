@@ -5,7 +5,7 @@ export class FollowCamera {
     this.camera = camera;
     this.offset = new THREE.Vector3(0, 14, -18);
     this.lookOffset = new THREE.Vector3(0, 2, 0);
-    this.lerpFactor = 0.06;
+    this.lerpFactor = 0.08;
     this.currentLookTarget = new THREE.Vector3();
   }
 

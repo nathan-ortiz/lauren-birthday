@@ -123,9 +123,11 @@ export class Car {
 
   setupPhysics() {
     const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.4, 1.75));
-    this.chassisBody = new CANNON.Body({ mass: 150 });
+    this.chassisBody = new CANNON.Body({ mass: 80 });
     this.chassisBody.addShape(chassisShape);
     this.chassisBody.position.set(0, 4, 0); // start above ground, will drop
+    this.chassisBody.linearDamping = 0.1;
+    this.chassisBody.angularDamping = 0.4;
 
     this.vehicle = new CANNON.RaycastVehicle({
       chassisBody: this.chassisBody,
@@ -137,9 +139,9 @@ export class Car {
     const wheelOpts = {
       radius: 0.4,
       directionLocal: new CANNON.Vec3(0, -1, 0),
-      suspensionStiffness: 30,
+      suspensionStiffness: 55,
       suspensionRestLength: 0.3,
-      frictionSlip: 1.4,
+      frictionSlip: 2.5,
       dampingRelaxation: 2.3,
       dampingCompression: 4.4,
       maxSuspensionForce: 100000,
@@ -176,20 +178,20 @@ export class Car {
   }
 
   applyInput(forward, backward, left, right) {
-    const maxForce = 800;
-    const maxSteer = 0.5;
-    const brakeForce = 50;
+    const maxForce = 1500;
+    const maxSteer = 0.6;
+    const brakeForce = 80;
 
     // Engine
     if (forward) {
       this.engineForce = maxForce;
       this.brakeForce = 0;
     } else if (backward) {
-      this.engineForce = -maxForce * 0.5;
+      this.engineForce = -maxForce * 0.6;
       this.brakeForce = 0;
     } else {
       this.engineForce = 0;
-      this.brakeForce = 10; // gentle slow down
+      this.brakeForce = 3; // very gentle slow down
     }
 
     // Steering
@@ -213,14 +215,14 @@ export class Car {
   }
 
   applyJoystickInput(forwardAmount, steerAmount) {
-    const maxForce = 800;
-    const maxSteer = 0.5;
+    const maxForce = 1500;
+    const maxSteer = 0.6;
 
     this.engineForce = forwardAmount * maxForce;
     this.steerValue = -steerAmount * maxSteer;
 
     if (Math.abs(forwardAmount) < 0.1 && Math.abs(steerAmount) < 0.1) {
-      this.brakeForce = 10;
+      this.brakeForce = 3;
     } else {
       this.brakeForce = 0;
     }
