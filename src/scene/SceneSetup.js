@@ -45,21 +45,9 @@ export function createScene() {
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
 
-  // BRIGHT RED for debugging — if you see red at edges, scene.background works
-  scene.background = new THREE.Color(0xff0000);
-
-  // Sky dome sphere — large sphere with gradient+clouds rendered from inside
-  // Camera is always inside this sphere, so sky is visible in every direction
-  const skyGeo = new THREE.SphereGeometry(180, 32, 16);
-  const skyMat = new THREE.MeshBasicMaterial({
-    map: skyTexture,
-    side: THREE.BackSide,
-    fog: false,
-    depthWrite: false,
-  });
-  const skyDome = new THREE.Mesh(skyGeo, skyMat);
-  skyDome.renderOrder = -1; // render before everything else
-  scene.add(skyDome);
+  // Sky: use the canvas texture directly as scene background
+  // No dome sphere — it was covering everything with a broken white texture
+  scene.background = skyTexture;
 
   // No fog — was causing white edges
   // scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
