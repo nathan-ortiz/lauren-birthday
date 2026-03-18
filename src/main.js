@@ -86,12 +86,18 @@ async function init() {
   );
 
   // Handle resize
-  function onResize() {
+  window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     followCamera.resize();
-  }
-  window.addEventListener('resize', onResize);
+  });
+
+  // Pause when tab is hidden (save battery on mobile)
+  let paused = false;
+  document.addEventListener('visibilitychange', () => {
+    paused = document.hidden;
+    if (!paused) clock.getDelta(); // reset delta to avoid physics explosion
+  });
 
   // Hide loading, show start screen
   loadingScreen.hide();
@@ -103,6 +109,7 @@ async function init() {
 
   function animate() {
     requestAnimationFrame(animate);
+    if (paused) return;
 
     const delta = Math.min(clock.getDelta(), 0.1);
     const elapsed = clock.getElapsedTime();

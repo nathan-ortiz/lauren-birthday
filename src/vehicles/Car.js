@@ -238,8 +238,18 @@ export class Car {
   }
 
   update() {
+    // Check for flip or out-of-bounds — auto-reset
+    const pos = this.chassisBody.position;
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.mesh.quaternion);
+
+    if (pos.y < -5 || up.y < 0.3) {
+      // Car is flipped or fell through the world — reset
+      this.resetToSpawn();
+      return;
+    }
+
     // Sync mesh to physics
-    this.mesh.position.copy(this.chassisBody.position);
+    this.mesh.position.copy(pos);
     this.mesh.quaternion.copy(this.chassisBody.quaternion);
 
     // Sync wheel meshes
@@ -257,6 +267,16 @@ export class Car {
       this.antenna.rotation.x = Math.sin(Date.now() * 0.01) * 0.1 * Math.min(speed * 0.1, 1);
       this.antenna.rotation.z = Math.cos(Date.now() * 0.013) * 0.08 * Math.min(speed * 0.1, 1);
     }
+  }
+
+  resetToSpawn() {
+    this.chassisBody.position.set(0, 3, 0);
+    this.chassisBody.quaternion.set(0, 0, 0, 1);
+    this.chassisBody.velocity.set(0, 0, 0);
+    this.chassisBody.angularVelocity.set(0, 0, 0);
+    this.engineForce = 0;
+    this.steerValue = 0;
+    this.brakeForce = 0;
   }
 
   getPosition() {

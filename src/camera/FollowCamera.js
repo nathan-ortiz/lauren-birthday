@@ -38,7 +38,8 @@ export class FollowCamera {
       window.addEventListener('touchmove', (e) => {
         if (!isCameraTouch || e.touches.length !== 1) return;
         const dx = e.touches[0].clientX - touchStartX;
-        this.orbitTarget = -(dx / window.innerWidth) * Math.PI * 0.8;
+        const raw = -(dx / window.innerWidth) * Math.PI * 0.6;
+        this.orbitTarget = Math.max(-Math.PI * 0.5, Math.min(Math.PI * 0.5, raw));
       }, { passive: true });
 
       window.addEventListener('touchend', () => {
