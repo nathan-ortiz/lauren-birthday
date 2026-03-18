@@ -5,6 +5,7 @@ export class MobileControls {
     this.forwardAmount = 0;
     this.steerAmount = 0;
     this.interactPressed = false;
+    this.jumpPressed = false;
     this.enabled = true;
     this.joystick = null;
     this.actionBtn = null;
@@ -41,6 +42,26 @@ export class MobileControls {
       this.steerAmount = 0;
     });
 
+    // Tap anywhere (outside joystick) = jump
+    let tapStart = 0;
+    let tapMoved = false;
+    window.addEventListener('touchstart', (e) => {
+      if (!this.enabled) return;
+      const t = e.touches[0];
+      const inJoystick = t.clientX < 200 && t.clientY > window.innerHeight - 200;
+      if (!inJoystick) {
+        tapStart = Date.now();
+        tapMoved = false;
+      }
+    }, { passive: true });
+    window.addEventListener('touchmove', () => { tapMoved = true; }, { passive: true });
+    window.addEventListener('touchend', () => {
+      if (!this.enabled) return;
+      if (!tapMoved && Date.now() - tapStart < 200) {
+        this.jumpPressed = true;
+      }
+    }, { passive: true });
+
     // Action button (right side)
     this.actionBtn = document.createElement('button');
     this.actionBtn.id = 'action-btn';
@@ -63,6 +84,12 @@ export class MobileControls {
 
   hideActionButton() {
     if (this.actionBtn) this.actionBtn.style.display = 'none';
+  }
+
+  consumeJump() {
+    const was = this.jumpPressed;
+    this.jumpPressed = false;
+    return was;
   }
 
   consumeInteract() {

@@ -147,8 +147,8 @@ async function init() {
       car.applyInput(keyboard.forward, keyboard.backward, keyboard.left, keyboard.right);
     }
 
-    // Jump (Space) — hop over obstacles
-    if (keyboard.jump) {
+    // Jump (Space or tap on mobile) — hop over obstacles
+    if (keyboard.jump || mobileControls.consumeJump()) {
       keyboard.consumeJump();
       car.jump();
     }

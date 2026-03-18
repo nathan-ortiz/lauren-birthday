@@ -144,6 +144,10 @@ export class Car {
     if (Math.abs(fa) > 0.1) {
       this.body.velocity.x += Math.sin(yr) * fa * 1.8;
       this.body.velocity.z += Math.cos(yr) * fa * 1.8;
+    } else {
+      // Active braking when joystick released — stops drift
+      this.body.velocity.x *= 0.9;
+      this.body.velocity.z *= 0.9;
     }
     if (Math.abs(sa) > 0.1) {
       this.body.angularVelocity.y = sa * 2.5;
