@@ -4,64 +4,58 @@ import { COLORS } from '../utils/Colors.js';
 export function createScene() {
   const scene = new THREE.Scene();
 
-  // 3D Sky dome — a large sphere with gradient + clouds that has proper perspective
-  const skyCanvas = document.createElement('canvas');
-  skyCanvas.width = 1024;
-  skyCanvas.height = 1024;
-  const ctx = skyCanvas.getContext('2d');
-
-  // Rich blue gradient — much bluer, less white
-  const grad = ctx.createLinearGradient(0, 0, 0, 1024);
-  grad.addColorStop(0, '#3a7bd5');    // rich blue at zenith
-  grad.addColorStop(0.25, '#5b9de5'); // medium blue
-  grad.addColorStop(0.5, '#7bb8ed');  // sky blue
-  grad.addColorStop(0.7, '#a0d0f5');  // light blue
-  grad.addColorStop(0.85, '#d4e8f5'); // pale blue horizon
-  grad.addColorStop(1, '#e8ddd0');    // warm horizon
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 1024, 1024);
-
-  // Soft white clouds
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-  const clouds = [
-    [120, 200, 70], [350, 250, 80], [600, 180, 60], [850, 220, 75],
-    [200, 350, 55], [500, 300, 65], [750, 280, 50], [950, 350, 60],
-    [80, 400, 45], [400, 380, 50], [650, 350, 55], [300, 150, 40],
-    [150, 500, 40], [700, 450, 45], [500, 480, 50],
-  ];
-  for (const [cx, cy, r] of clouds) {
-    for (let j = 0; j < 5; j++) {
-      ctx.beginPath();
-      ctx.ellipse(
-        cx + (j - 2) * r * 0.45,
-        cy + Math.sin(j * 1.2) * r * 0.1,
-        r * (0.5 + j * 0.13),
-        r * 0.4,
-        0, 0, Math.PI * 2
-      );
-      ctx.fill();
-    }
-  }
-
-  const skyTexture = new THREE.CanvasTexture(skyCanvas);
-
-  // Flat background as fallback
-  scene.background = skyTexture;
-
-  // 3D sky dome for parallax — camera moves inside this sphere
-  // so clouds shift naturally with perspective changes
+  // Sky dome using a custom shader — no textures, no canvas, can't break
+  // Computes sky color from vertex direction: blue at top, warm at horizon
+  // Includes procedural cloud-like noise for natural variation
   const skyDome = new THREE.Mesh(
-    new THREE.SphereGeometry(190, 32, 20),
-    new THREE.MeshBasicMaterial({
-      map: skyTexture,
+    new THREE.SphereGeometry(190, 48, 24),
+    new THREE.ShaderMaterial({
       side: THREE.BackSide,
-      toneMapped: false, // CRITICAL: prevent ACES tone mapping from washing it out
+      depthWrite: false,
+      uniforms: {},
+      vertexShader: `
+        varying vec3 vDir;
+        void main() {
+          vDir = normalize(position);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vDir;
+        void main() {
+          float h = vDir.y; // -1 (bottom) to +1 (top)
+
+          // Sky gradient
+          vec3 zenith  = vec3(0.22, 0.47, 0.83);  // rich blue
+          vec3 mid     = vec3(0.48, 0.72, 0.92);  // sky blue
+          vec3 horizon = vec3(0.78, 0.88, 0.95);  // pale blue
+          vec3 ground  = vec3(0.82, 0.85, 0.78);  // warm gray-green
+
+          vec3 color;
+          if (h > 0.3) {
+            color = mix(mid, zenith, (h - 0.3) / 0.7);
+          } else if (h > 0.0) {
+            color = mix(horizon, mid, h / 0.3);
+          } else {
+            color = mix(ground, horizon, (h + 1.0) / 1.0);
+          }
+
+          // Soft cloud bands near horizon
+          float cloudBand = smoothstep(0.05, 0.25, h) * (1.0 - smoothstep(0.25, 0.5, h));
+          float noise = fract(sin(vDir.x * 12.9 + vDir.z * 78.2) * 43758.5) * 0.5 + 0.5;
+          float cloud = cloudBand * noise * 0.3;
+          color = mix(color, vec3(1.0), cloud);
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
     })
   );
   scene.add(skyDome);
-
-  // Export so main.js can move it with the camera
   scene._skyDome = skyDome;
+
+  // Solid blue background fallback
+  scene.background = new THREE.Color(0x7bb8ed);
 
   // No fog — was causing white edges
   // scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
