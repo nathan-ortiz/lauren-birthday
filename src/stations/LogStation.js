@@ -34,23 +34,21 @@ export function createLogStation(scene, world) {
     group.add(ring);
   }
 
-  // Cross-section caps (tree rings)
+  // Cross-section caps — simple painted circles, no thin torus rings
   for (const side of [-5, 5]) {
-    const capGeo = new THREE.CircleGeometry(1.3, 10);
-    const capMat = getMaterial(0xd4a76a);
-    const cap = new THREE.Mesh(capGeo, capMat);
+    // Outer cap (lighter wood)
+    const capGeo = new THREE.CircleGeometry(1.3, 12);
+    const cap = new THREE.Mesh(capGeo, getMaterial(0xd4a76a));
     cap.position.set(side, 1.4, 0);
     cap.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
     group.add(cap);
 
-    // Inner rings
-    for (let r = 0.3; r < 1.2; r += 0.3) {
-      const torusGeo = new THREE.TorusGeometry(r, 0.02, 4, 16);
-      const torus = new THREE.Mesh(torusGeo, getMaterial(0x8b5e3c));
-      torus.position.set(side > 0 ? side + 0.01 : side - 0.01, 1.4, 0);
-      torus.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
-      group.add(torus);
-    }
+    // Inner circle for heartwood look
+    const innerGeo = new THREE.CircleGeometry(0.7, 10);
+    const inner = new THREE.Mesh(innerGeo, getMaterial(0xc49560));
+    inner.position.set(side > 0 ? side + 0.02 : side - 0.02, 1.4, 0);
+    inner.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
+    group.add(inner);
   }
 
   // Mushrooms

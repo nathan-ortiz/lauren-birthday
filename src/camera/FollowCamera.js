@@ -4,8 +4,8 @@ export class FollowCamera {
   constructor(camera, isMobile) {
     this.camera = camera;
     this.isMobile = isMobile;
-    this.baseOffset = new THREE.Vector3(0, 10, -14);
-    this.lookOffset = new THREE.Vector3(0, 1.5, 2);
+    this.baseOffset = new THREE.Vector3(0, 7, -12);
+    this.lookOffset = new THREE.Vector3(0, 1.5, 5);
     this.lerpFactor = 0.08;
     this.currentLookTarget = new THREE.Vector3();
 

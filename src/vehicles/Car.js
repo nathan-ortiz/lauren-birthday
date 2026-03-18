@@ -70,14 +70,17 @@ export class Car {
 
   createWheels() {
     const wheels = [];
-    const geo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8);
-    geo.rotateZ(Math.PI / 2);
     const mat = getMaterial(COLORS.carAccent);
     for (const [x, y, z] of [[-0.85, 0.4, 1.2], [0.85, 0.4, 1.2], [-0.85, 0.4, -1.2], [0.85, 0.4, -1.2]]) {
-      const w = new THREE.Mesh(geo, mat);
-      w.castShadow = true;
-      w._lp = new THREE.Vector3(x, y, z);
-      wheels.push(w);
+      // Use a group so the cylinder orientation doesn't interfere with car rotation
+      const group = new THREE.Group();
+      const geo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.z = Math.PI / 2; // orient cylinder sideways within the group
+      mesh.castShadow = true;
+      group.add(mesh);
+      group._lp = new THREE.Vector3(x, y, z);
+      wheels.push(group);
     }
     return wheels;
   }
@@ -99,7 +102,6 @@ export class Car {
     const yr = e.y;
 
     // FORWARD = +Z direction (away from camera, toward headlights)
-    // Direct velocity change per frame — feels immediate and responsive
     const accel = 1.8;
     if (forward) {
       this.body.velocity.x += Math.sin(yr) * accel;
@@ -107,6 +109,10 @@ export class Car {
     } else if (backward) {
       this.body.velocity.x -= Math.sin(yr) * accel * 0.6;
       this.body.velocity.z -= Math.cos(yr) * accel * 0.6;
+    } else {
+      // Active braking — quickly reduce horizontal velocity for snappy stop
+      this.body.velocity.x *= 0.92;
+      this.body.velocity.z *= 0.92;
     }
 
     // Steering
