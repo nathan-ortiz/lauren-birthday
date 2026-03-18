@@ -78,14 +78,12 @@ export class FollowCamera {
     const portrait = window.innerHeight > window.innerWidth;
     let zoomScale = portrait ? 1.45 : 1;
 
-    // Mobile cave pull-in: smoothly bring camera closer as car enters the cave
-    // so the camera doesn't clip into cliff walls. Desktop is unaffected.
-    if (this.isMobile) {
-      // 0 at x≤42 (outside), ramps to 1 at x≥58 (fully inside cave)
-      const caveT = Math.max(0, Math.min(1, (carPosition.x - 42) / 16));
-      // Shrink offset to 45% of normal when fully inside — keeps camera tight behind car
-      zoomScale *= (1 - caveT * 0.55);
-    }
+    // Cave pull-in: smoothly bring camera closer as car enters the cave
+    // 0 at x≤42 (outside), ramps to 1 at x≥58 (fully inside cave)
+    const caveT = Math.max(0, Math.min(1, (carPosition.x - 42) / 16));
+    // Mobile pulls in more (55%) since the screen is tighter; desktop pulls in 35%
+    const pullIn = this.isMobile ? 0.55 : 0.35;
+    zoomScale *= (1 - caveT * pullIn);
 
     const adjustedOffset = this.baseOffset.clone().multiplyScalar(zoomScale);
     adjustedOffset.y = this.baseOffset.y * zoomScale + this.pitchOffset;
