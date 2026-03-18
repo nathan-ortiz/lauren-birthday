@@ -105,20 +105,27 @@ async function init() {
     if (!paused) clock.getDelta();
   });
 
+  // Preload all assets during loading/start screen so they're instant on interaction
+  ['/photos/train.jpg', '/photos/golden-gate.jpg', '/photos/kayak.jpg',
+   '/photos/splash-mountain.jpg',
+  ].forEach((url) => { new Image().src = url; });
+
+  // Preload video (fetch into cache)
+  fetch('/videos/treasure-chest.mov').catch(() => {});
+
+  // Preload audio so music starts instantly after "Click to Start"
+  const bgMusic = new Audio('/audio/ambient.mp3');
+  bgMusic.preload = 'auto';
+  bgMusic.loop = true;
+  bgMusic.volume = 0.25;
+
   // Hide loading, show start screen
   loadingScreen.hide();
   const startScreen = new StartScreen(isMobile);
   await startScreen.show();
 
-  // Start ambient music (after user interaction unlocks audio)
-  try {
-    const bgMusic = new Audio('/audio/ambient.mp3');
-    bgMusic.loop = true;
-    bgMusic.volume = 0.25;
-    bgMusic.play().catch(() => {}); // silently fail if autoplay blocked
-  } catch (e) {
-    // No audio — that's fine
-  }
+  // Start ambient music (already preloaded above, user click unlocks audio)
+  bgMusic.play().catch(() => {});
 
   // Start game loop
   const clock = new THREE.Clock();

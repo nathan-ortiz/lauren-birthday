@@ -266,17 +266,13 @@ function buildCaveInterior(group) {
   gnd.receiveShadow = true;
   group.add(gnd);
 
-  // ── Lighting ──
-  const passLight = new THREE.PointLight(0xffaa55, 0.6, 20, 2);
-  passLight.position.set(ENTER_X + PASS_LEN / 2, 10, CAVE_Z);
-  group.add(passLight);
-
-  const warmLight1 = new THREE.PointLight(0xffaa55, 1.5, 50, 1.5);
-  warmLight1.position.set(passEnd + 15, 10, CAVE_Z);
+  // ── Lighting (2 lights — fewer = better performance) ──
+  const warmLight1 = new THREE.PointLight(0xffaa55, 1.8, 65, 1.5);
+  warmLight1.position.set(passEnd + 12, 10, CAVE_Z);
   group.add(warmLight1);
 
-  const warmLight2 = new THREE.PointLight(0xff8833, 1.0, 40, 2);
-  warmLight2.position.set(passEnd + 35, 8, CAVE_Z);
+  const warmLight2 = new THREE.PointLight(0xff8833, 1.0, 50, 2);
+  warmLight2.position.set(passEnd + 32, 8, CAVE_Z);
   group.add(warmLight2);
 }
 
