@@ -82,7 +82,7 @@ export class FollowCamera {
     // 0 at x≤42 (outside), ramps to 1 at x≥58 (fully inside cave)
     const caveT = Math.max(0, Math.min(1, (carPosition.x - 42) / 16));
     // Mobile pulls in more (55%) since the screen is tighter; desktop pulls in 35%
-    const pullIn = this.isMobile ? 0.55 : 0.35;
+    const pullIn = this.isMobile ? 0.55 : 0.15;
     zoomScale *= (1 - caveT * pullIn);
 
     const adjustedOffset = this.baseOffset.clone().multiplyScalar(zoomScale);
