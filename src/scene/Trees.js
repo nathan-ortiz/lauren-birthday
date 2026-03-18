@@ -73,6 +73,7 @@ export function createTrees(scene, world) {
     [-35, 22],    // bridge
     [15, 22],     // kayak
     [-20, -35],   // log hill (wider avoidance)
+    [60, 24],     // waterfall cave canyon/cliffs
   ];
 
   const treeCount = 120;
@@ -85,7 +86,7 @@ export function createTrees(scene, world) {
     const tooClose = avoid.some(([ax, az]) => {
       const d = Math.sqrt((x - ax) ** 2 + (z - az) ** 2);
       // Extra clearance for hill area
-      const radius = (ax === -20 && az === -35) ? 20 : 12;
+      const radius = (ax === -20 && az === -35) ? 20 : (ax === 60 && az === 24) ? 25 : 12;
       return d < radius;
     });
     if (tooClose) continue;

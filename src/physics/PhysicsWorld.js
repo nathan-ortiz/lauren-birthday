@@ -37,8 +37,8 @@ export function createPhysicsWorld() {
   const walls = [
     { pos: [0, wallHeight, half], rot: [0, 0, 0] },
     { pos: [0, wallHeight, -half], rot: [0, 0, 0] },
-    { pos: [half, wallHeight, 0], rot: [0, Math.PI / 2, 0] },
     { pos: [-half, wallHeight, 0], rot: [0, Math.PI / 2, 0] },
+    // East wall split below — gap for waterfall cave entrance
   ];
   const wallShape = new CANNON.Box(new CANNON.Vec3(half, wallHeight, wallThickness));
   walls.forEach(({ pos, rot }) => {
@@ -47,6 +47,21 @@ export function createPhysicsWorld() {
     body.quaternion.setFromEuler(...rot);
     world.addBody(body);
   });
+
+  // East wall — split for waterfall cave canyon (gap z=5 to z=49)
+  const eastSouth = new CANNON.Body({
+    type: CANNON.Body.STATIC,
+    shape: new CANNON.Box(new CANNON.Vec3(wallThickness, wallHeight, 32.5)),
+  });
+  eastSouth.position.set(half, wallHeight, -27.5); // covers z=-60 to z=5
+  world.addBody(eastSouth);
+
+  const eastNorth = new CANNON.Body({
+    type: CANNON.Body.STATIC,
+    shape: new CANNON.Box(new CANNON.Vec3(wallThickness, wallHeight, 5.5)),
+  });
+  eastNorth.position.set(half, wallHeight, 54.5); // covers z=49 to z=60
+  world.addBody(eastNorth);
 
   return { world, groundBody, carMaterial };
 }

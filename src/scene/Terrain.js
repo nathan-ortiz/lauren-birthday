@@ -37,11 +37,26 @@ export function createTerrain(scene) {
       y -= Math.cos((riverDist / 6) * Math.PI * 0.5) * 0.3;
     }
 
+    // Cliff/mountain base rise (around x:70, z:27) — skip cave corridor
+    const dxM = x - 70;
+    const dzM = z - 24;
+    const distM = Math.sqrt(dxM * dxM + dzM * dzM);
+    const inCaveCorridor = x > 40 && z > 13 && z < 35;
+    if (distM < 30 && !inCaveCorridor) {
+      y += Math.cos((distM / 30) * Math.PI * 0.5) * 3;
+    }
+
     pos.setY(i, y);
 
     // Vertex colors — blend grass shades for visual variety
     const blend = (Math.sin(x * 0.3) * Math.cos(z * 0.2) + 1) * 0.5;
     const c = grassColor.clone().lerp(grassDarkColor, blend * 0.4 + Math.random() * 0.08);
+
+    // Blend to rocky brown near cliff
+    if (distM < 30) {
+      const rockBlend = 1 - distM / 30;
+      c.lerp(new THREE.Color(0x8a7a6a), rockBlend * 0.6);
+    }
     colors[i * 3] = c.r;
     colors[i * 3 + 1] = c.g;
     colors[i * 3 + 2] = c.b;
@@ -118,6 +133,14 @@ export function getTerrainHeight(x, z) {
   const distH = Math.sqrt(dxH * dxH + dzH * dzH);
   if (distH < 18) {
     y = Math.cos((distH / 18) * Math.PI * 0.5) * 5;
+  }
+  // Cliff base rise at (70, 27) — flat in cave corridor
+  const dxM = x - 70;
+  const dzM = z - 27;
+  const distM = Math.sqrt(dxM * dxM + dzM * dzM);
+  const inCaveCorridor = x > 40 && z > 13 && z < 35;
+  if (distM < 30 && !inCaveCorridor) {
+    y = Math.max(y, Math.cos((distM / 30) * Math.PI * 0.5) * 3);
   }
   return y;
 }

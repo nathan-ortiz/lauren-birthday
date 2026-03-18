@@ -67,7 +67,11 @@ export class StationManager {
     this.overlayOpen = true;
     this.keyboard.enabled = false;
     this.mobileControls.enabled = false;
-    this.photoOverlay.show(station.photo, station.caption);
+    if (station.video) {
+      this.photoOverlay.showVideo(station.video, station.caption);
+    } else {
+      this.photoOverlay.show(station.photo, station.caption);
+    }
   }
 
   closeOverlay() {

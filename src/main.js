@@ -5,6 +5,7 @@ import { createTerrain } from './scene/Terrain.js';
 import { createWater } from './scene/Water.js';
 import { createTrees } from './scene/Trees.js';
 import { createDecorations } from './scene/Decorations.js';
+import { createWaterfallCave } from './scene/WaterfallCave.js';
 import { createBirthdayText, updateBirthdayText } from './scene/BirthdayText.js';
 import { createParticles, createPetalParticles } from './scene/Particles.js';
 import { Car } from './vehicles/Car.js';
@@ -46,6 +47,7 @@ async function init() {
   const water = createWater(scene);
   createTrees(scene, world);
   createDecorations(scene);
+  const waterfallCave = createWaterfallCave(scene, world);
   const { letters, bodies } = createBirthdayText(scene, world);
   const particles = createParticles(scene);
   const petals = createPetalParticles(scene);
@@ -69,6 +71,7 @@ async function init() {
     createBridgeStation(scene, world),
     createKayakStation(scene, world),
     createLogStation(scene, world),
+    waterfallCave.station,
   ];
 
   // UI
@@ -154,6 +157,7 @@ async function init() {
     followCamera.update(car.getPosition(), car.getRotationY());
     stationManager.update(car.getPosition(), elapsed);
     water.update(elapsed);
+    waterfallCave.update(elapsed);
     particles.update(delta);
     petals.update(delta);
     updateBirthdayText(letters, bodies);

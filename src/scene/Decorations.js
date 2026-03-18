@@ -5,7 +5,7 @@ import { rand } from '../utils/Helpers.js';
 
 export function createDecorations(scene) {
   // Rocks — avoid station areas
-  const avoidZones = [[0, 0], [0, 5], [0, 8], [30, -25], [-35, 22], [15, 22], [-20, -35]];
+  const avoidZones = [[0, 0], [0, 5], [0, 8], [30, -25], [-35, 22], [15, 22], [-20, -35], [48, 24]];
   for (let i = 0; i < 40; i++) {
     const rx = rand(-50, 50);
     const rz = rand(-50, 50);
@@ -118,6 +118,9 @@ function createFence(scene) {
 
   for (let side = 0; side < 4; side++) {
     for (let i = -half; i <= half; i += 4) {
+      // Skip east fence posts in canyon/cave area (z 2–52)
+      if (side === 3 && i >= 2 && i <= 52) continue;
+
       const postGeo = new THREE.BoxGeometry(0.2, 1.2, 0.2);
       const post = new THREE.Mesh(postGeo, fenceMat);
 
@@ -130,15 +133,34 @@ function createFence(scene) {
       scene.add(post);
     }
 
-    const railGeo = new THREE.BoxGeometry(side < 2 ? half * 2 : 0.1, 0.1, side < 2 ? 0.1 : half * 2);
-    const rail1 = new THREE.Mesh(railGeo, fenceMat);
-    const rail2 = new THREE.Mesh(railGeo, fenceMat);
+    if (side < 3) {
+      // North, south, west — full-length rails
+      const railGeo = new THREE.BoxGeometry(side < 2 ? half * 2 : 0.1, 0.1, side < 2 ? 0.1 : half * 2);
+      const rail1 = new THREE.Mesh(railGeo, fenceMat);
+      const rail2 = new THREE.Mesh(railGeo, fenceMat);
 
-    if (side === 0) { rail1.position.set(0, 0.4, -half); rail2.position.set(0, 0.9, -half); }
-    else if (side === 1) { rail1.position.set(0, 0.4, half); rail2.position.set(0, 0.9, half); }
-    else if (side === 2) { rail1.position.set(-half, 0.4, 0); rail2.position.set(-half, 0.9, 0); }
-    else { rail1.position.set(half, 0.4, 0); rail2.position.set(half, 0.9, 0); }
+      if (side === 0) { rail1.position.set(0, 0.4, -half); rail2.position.set(0, 0.9, -half); }
+      else if (side === 1) { rail1.position.set(0, 0.4, half); rail2.position.set(0, 0.9, half); }
+      else { rail1.position.set(-half, 0.4, 0); rail2.position.set(-half, 0.9, 0); }
 
-    scene.add(rail1, rail2);
+      scene.add(rail1, rail2);
+    } else {
+      // East fence — split rails around cave/mountain gap (z 18–36)
+      // South segment: z=-57 to z=2 (length 59, center -27.5)
+      const railSGeo = new THREE.BoxGeometry(0.1, 0.1, 59);
+      const rS1 = new THREE.Mesh(railSGeo, fenceMat);
+      const rS2 = new THREE.Mesh(railSGeo, fenceMat);
+      rS1.position.set(half, 0.4, -27.5);
+      rS2.position.set(half, 0.9, -27.5);
+      scene.add(rS1, rS2);
+
+      // North segment: z=52 to z=57 (length 5, center 54.5)
+      const railNGeo = new THREE.BoxGeometry(0.1, 0.1, 5);
+      const rN1 = new THREE.Mesh(railNGeo, fenceMat);
+      const rN2 = new THREE.Mesh(railNGeo, fenceMat);
+      rN1.position.set(half, 0.4, 54.5);
+      rN2.position.set(half, 0.9, 54.5);
+      scene.add(rN1, rN2);
+    }
   }
 }
