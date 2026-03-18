@@ -31,9 +31,10 @@ export class FollowCamera {
       window.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           const touch = e.touches[0];
-          // Allow swiping anywhere except the joystick zone (bottom-left corner)
-          const inJoystick = touch.clientX < 200 && touch.clientY > window.innerHeight - 200;
-          if (!inJoystick) {
+          // Allow swiping anywhere except the two joystick zones (bottom corners)
+          const inLeftJoy = touch.clientX < 200 && touch.clientY > window.innerHeight - 200;
+          const inRightJoy = touch.clientX > window.innerWidth - 200 && touch.clientY > window.innerHeight - 200;
+          if (!inLeftJoy && !inRightJoy) {
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
             isCameraTouch = true;
