@@ -59,6 +59,33 @@ export function createTerrain(scene) {
   ground.receiveShadow = true;
   scene.add(ground);
 
+  // Subtle grid overlay (Bruno Simon-style tile lines on the ground)
+  const gridCanvas = document.createElement('canvas');
+  gridCanvas.width = 64;
+  gridCanvas.height = 64;
+  const gctx = gridCanvas.getContext('2d');
+  gctx.fillStyle = 'rgba(0,0,0,0)';
+  gctx.clearRect(0, 0, 64, 64);
+  gctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  gctx.lineWidth = 1;
+  gctx.strokeRect(0, 0, 64, 64);
+  const gridTexture = new THREE.CanvasTexture(gridCanvas);
+  gridTexture.wrapS = THREE.RepeatWrapping;
+  gridTexture.wrapT = THREE.RepeatWrapping;
+  gridTexture.repeat.set(30, 30);
+
+  const gridGeo = new THREE.PlaneGeometry(size, size);
+  gridGeo.rotateX(-Math.PI / 2);
+  const gridMat = new THREE.MeshBasicMaterial({
+    map: gridTexture,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const gridMesh = new THREE.Mesh(gridGeo, gridMat);
+  gridMesh.position.y = 0.05;
+  scene.add(gridMesh);
+
   // Tile paths connecting stations
   createPaths(scene);
 

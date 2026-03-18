@@ -105,8 +105,8 @@ export function createBridgeStation(scene, world) {
   }
 
   // Glowing ring
-  const ringGeo = new THREE.TorusGeometry(6, 0.08, 8, 32);
-  const ring = new THREE.Mesh(ringGeo, getEmissiveMaterial(COLORS.gold, 0.6));
+  const ringGeo = new THREE.TorusGeometry(6, 0.15, 8, 32);
+  const ring = new THREE.Mesh(ringGeo, getEmissiveMaterial(COLORS.gold, 1.5));
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.1;
   group.add(ring);

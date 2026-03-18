@@ -64,9 +64,14 @@ export class Car {
     rearBumper.position.set(0, 0.3, -1.8);
     group.add(rearBumper);
 
-    // Headlights
+    // Headlights — bright glow
     const lightGeo = new THREE.BoxGeometry(0.3, 0.2, 0.15);
-    const headlightMat = getEmissiveMaterial(COLORS.carLights, 1.0);
+    const headlightMat = new THREE.MeshStandardMaterial({
+      color: COLORS.carLights,
+      emissive: COLORS.carLights,
+      emissiveIntensity: 2.0,
+      flatShading: true,
+    });
     const hl1 = new THREE.Mesh(lightGeo, headlightMat);
     hl1.position.set(-0.7, 0.5, 1.85);
     group.add(hl1);
@@ -74,14 +79,50 @@ export class Car {
     hl2.position.set(0.7, 0.5, 1.85);
     group.add(hl2);
 
-    // Taillights
-    const tlMat = getEmissiveMaterial(0xff2222, 0.6);
+    // Headlight strip (like Bruno's car — glowing bar across front)
+    const stripGeo = new THREE.BoxGeometry(1.8, 0.08, 0.08);
+    const stripMat = new THREE.MeshStandardMaterial({
+      color: COLORS.carLights,
+      emissive: COLORS.carLights,
+      emissiveIntensity: 1.5,
+      flatShading: true,
+    });
+    const strip = new THREE.Mesh(stripGeo, stripMat);
+    strip.position.set(0, 0.5, 1.88);
+    group.add(strip);
+
+    // Taillights — red glow
+    const tlMat = new THREE.MeshStandardMaterial({
+      color: 0xff2222,
+      emissive: 0xff2222,
+      emissiveIntensity: 1.8,
+      flatShading: true,
+    });
     const tl1 = new THREE.Mesh(lightGeo, tlMat);
     tl1.position.set(-0.7, 0.5, -1.85);
     group.add(tl1);
     const tl2 = new THREE.Mesh(lightGeo, tlMat);
     tl2.position.set(0.7, 0.5, -1.85);
     group.add(tl2);
+
+    // Taillight strip
+    const tlStrip = new THREE.Mesh(stripGeo.clone(), tlMat);
+    tlStrip.position.set(0, 0.5, -1.88);
+    group.add(tlStrip);
+
+    // Roof rack (adds Bruno-like chunkiness)
+    const rackGeo = new THREE.BoxGeometry(1.4, 0.06, 1.4);
+    const rackMat = getMaterial(COLORS.carAccent);
+    const rack = new THREE.Mesh(rackGeo, rackMat);
+    rack.position.set(0, 1.55, -0.2);
+    group.add(rack);
+    // Rack rails
+    for (const rx of [-0.65, 0.65]) {
+      const railGeo = new THREE.BoxGeometry(0.06, 0.12, 1.4);
+      const rail = new THREE.Mesh(railGeo, rackMat);
+      rail.position.set(rx, 1.58, -0.2);
+      group.add(rail);
+    }
 
     return group;
   }

@@ -57,8 +57,8 @@ export function createKayakStation(scene, world) {
   group.add(paddleGroup);
 
   // Glowing ring
-  const ringGeo = new THREE.TorusGeometry(4, 0.08, 8, 32);
-  const ring = new THREE.Mesh(ringGeo, getEmissiveMaterial(COLORS.gold, 0.6));
+  const ringGeo = new THREE.TorusGeometry(4, 0.15, 8, 32);
+  const ring = new THREE.Mesh(ringGeo, getEmissiveMaterial(COLORS.gold, 1.5));
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.1;
   group.add(ring);
