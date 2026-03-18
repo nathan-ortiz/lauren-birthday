@@ -45,8 +45,8 @@ export function createScene() {
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
 
-  // Sky blue background color — the dome sphere renders on top of this
-  scene.background = new THREE.Color(0x7bb8ed);
+  // Sky blue background — this is the color visible past the edges of the world
+  scene.background = new THREE.Color(0x78b9e8);
 
   // Sky dome sphere — large sphere with gradient+clouds rendered from inside
   // Camera is always inside this sphere, so sky is visible in every direction
