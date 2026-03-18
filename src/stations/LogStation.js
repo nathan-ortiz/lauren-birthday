@@ -89,7 +89,7 @@ export function createLogStation(scene, world) {
     shape: new CANNON.Cylinder(1.3, 1.5, 10, 8),
     position: new CANNON.Vec3(pos.x, pos.y + 1.4, pos.z),
   });
-  physicsBody.quaternion.setFromEulerAngles(0, 0, Math.PI / 2);
+  physicsBody.quaternion.setFromEuler(0, 0, Math.PI / 2);
   world.addBody(physicsBody);
 
   // Hill collision — use a sphere

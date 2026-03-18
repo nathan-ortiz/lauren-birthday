@@ -15,7 +15,7 @@ export function createPhysicsWorld() {
     type: CANNON.Body.STATIC,
     shape: new CANNON.Plane(),
   });
-  groundBody.quaternion.setFromEulerAngles(-Math.PI / 2, 0, 0);
+  groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   world.addBody(groundBody);
 
   // Boundary walls
@@ -32,7 +32,7 @@ export function createPhysicsWorld() {
   walls.forEach(({ pos, rot }) => {
     const body = new CANNON.Body({ type: CANNON.Body.STATIC, shape: wallShape });
     body.position.set(...pos);
-    body.quaternion.setFromEulerAngles(...rot);
+    body.quaternion.setFromEuler(...rot);
     world.addBody(body);
   });
 
