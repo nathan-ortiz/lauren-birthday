@@ -75,9 +75,18 @@ export class FollowCamera {
     this.pitchOffset += (this.pitchTarget - this.pitchOffset) * this.orbitSpeed;
 
     // Camera always follows behind the car based on car's rotation
-    // In portrait mode, zoom out more so the scene isn't too tight
     const portrait = window.innerHeight > window.innerWidth;
-    const zoomScale = portrait ? 1.45 : 1;
+    let zoomScale = portrait ? 1.45 : 1;
+
+    // Mobile cave pull-in: smoothly bring camera closer as car enters the cave
+    // so the camera doesn't clip into cliff walls. Desktop is unaffected.
+    if (this.isMobile) {
+      // 0 at x≤42 (outside), ramps to 1 at x≥58 (fully inside cave)
+      const caveT = Math.max(0, Math.min(1, (carPosition.x - 42) / 16));
+      // Shrink offset to 45% of normal when fully inside — keeps camera tight behind car
+      zoomScale *= (1 - caveT * 0.55);
+    }
+
     const adjustedOffset = this.baseOffset.clone().multiplyScalar(zoomScale);
     adjustedOffset.y = this.baseOffset.y * zoomScale + this.pitchOffset;
 
