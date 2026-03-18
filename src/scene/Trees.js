@@ -110,12 +110,12 @@ export function createTrees(scene, world) {
     scene.add(tree);
     trees.push(tree);
 
-    // Add trunk collision body (cylinder) so car bounces off trees
-    if (world && r < 0.7) { // skip bushes (r >= 0.7)
+    // Small trunk collision so car bumps off but doesn't get wedged
+    if (world && r < 0.5) { // only bigger trees (round + pine, skip bushes + autumn)
       const trunkBody = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Cylinder(0.3 * scale, 0.3 * scale, 2 * scale, 6),
-        position: new CANNON.Vec3(x, 1 * scale, z),
+        shape: new CANNON.Cylinder(0.2 * scale, 0.2 * scale, 1.5 * scale, 6),
+        position: new CANNON.Vec3(x, 0.75 * scale, z),
       });
       world.addBody(trunkBody);
     }
@@ -134,8 +134,8 @@ export function createTrees(scene, world) {
     if (world) {
       const trunkBody = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Cylinder(0.3, 0.3, 2, 6),
-        position: new CANNON.Vec3(bx, 1, bz),
+        shape: new CANNON.Cylinder(0.2, 0.2, 1.5, 6),
+        position: new CANNON.Vec3(bx, 0.75, bz),
       });
       world.addBody(trunkBody);
     }

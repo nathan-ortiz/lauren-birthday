@@ -83,7 +83,13 @@ function createPaths(scene) {
     ...interpolatePath(0, 0, -20, -30, 20),
   ];
 
+  // Deduplicate tiles that overlap near the center (prevents Z-fighting flicker)
+  const placed = new Set();
   paths.forEach(([x, z], i) => {
+    const key = `${Math.round(x * 2)},${Math.round(z * 2)}`;
+    if (placed.has(key)) return;
+    placed.add(key);
+
     const tile = new THREE.Mesh(tileGeo, i % 3 === 0 ? tileMat2 : tileMat);
     tile.position.set(x, 0.05 + getTerrainHeight(x, z), z);
     tile.rotation.y = rand(-0.1, 0.1);

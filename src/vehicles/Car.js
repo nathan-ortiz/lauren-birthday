@@ -166,9 +166,9 @@ export class Car {
     const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.4, 1.75));
     this.chassisBody = new CANNON.Body({ mass: 80 });
     this.chassisBody.addShape(chassisShape);
-    this.chassisBody.position.set(0, 4, -2); // start behind text so player sees it ahead
-    this.chassisBody.linearDamping = 0.1;
-    this.chassisBody.angularDamping = 0.4;
+    this.chassisBody.position.set(0, 2, -2); // gentle drop onto ground
+    this.chassisBody.linearDamping = 0.05;
+    this.chassisBody.angularDamping = 0.3;
     this.chassisBody.allowSleep = false; // NEVER sleep — prevents "stuck" bug
 
     this.vehicle = new CANNON.RaycastVehicle({
@@ -181,15 +181,15 @@ export class Car {
     const wheelOpts = {
       radius: 0.4,
       directionLocal: new CANNON.Vec3(0, -1, 0),
-      suspensionStiffness: 55,
-      suspensionRestLength: 0.3,
-      frictionSlip: 2.5,
-      dampingRelaxation: 2.3,
-      dampingCompression: 4.4,
+      suspensionStiffness: 40,
+      suspensionRestLength: 0.4,
+      frictionSlip: 3.0,
+      dampingRelaxation: 2.5,
+      dampingCompression: 4.0,
       maxSuspensionForce: 100000,
       rollInfluence: 0.01,
       axleLocal: new CANNON.Vec3(-1, 0, 0),
-      maxSuspensionTravel: 0.3,
+      maxSuspensionTravel: 0.4,
       customSlidingRotationalSpeed: -30,
       useCustomSlidingRotationalSpeed: true,
     };
@@ -222,27 +222,27 @@ export class Car {
   applyInput(forward, backward, left, right) {
     const maxForce = 1500;
     const maxSteer = 0.6;
-    const brakeForce = 80;
 
-    // Engine
+    // Engine — NEGATED because car's +Z faces camera (backward on screen)
+    // So negative force = visually forward (away from camera)
     if (forward) {
-      this.engineForce = maxForce;
+      this.engineForce = -maxForce;
       this.brakeForce = 0;
     } else if (backward) {
-      this.engineForce = -maxForce * 0.6;
+      this.engineForce = maxForce * 0.6;
       this.brakeForce = 0;
     } else {
       this.engineForce = 0;
-      this.brakeForce = 3; // very gentle slow down
+      this.brakeForce = 3;
     }
 
-    // Steering
+    // Steering — also negated to match visual direction
     if (left) {
-      this.steerValue = maxSteer;
-    } else if (right) {
       this.steerValue = -maxSteer;
+    } else if (right) {
+      this.steerValue = maxSteer;
     } else {
-      this.steerValue *= 0.85; // auto-center
+      this.steerValue *= 0.85;
     }
 
     // Apply to vehicle
@@ -260,8 +260,8 @@ export class Car {
     const maxForce = 1500;
     const maxSteer = 0.6;
 
-    this.engineForce = forwardAmount * maxForce;
-    this.steerValue = -steerAmount * maxSteer;
+    this.engineForce = -forwardAmount * maxForce; // negated to match visual direction
+    this.steerValue = steerAmount * maxSteer;
 
     if (Math.abs(forwardAmount) < 0.1 && Math.abs(steerAmount) < 0.1) {
       this.brakeForce = 3;
@@ -290,20 +290,12 @@ export class Car {
       return;
     }
 
-    // Bruno-style auto-unstick: if car is tilted badly, pop it upright
-    if (up.y < 0.15) {
+    // Bruno-style auto-unstick: if car is seriously flipped, pop it upright
+    if (up.y < 0.2) {
       this.chassisBody.quaternion.set(0, 0, 0, 1);
-      this.chassisBody.velocity.set(0, 5, 0); // pop up
+      this.chassisBody.velocity.set(0, 4, 0);
       this.chassisBody.angularVelocity.set(0, 0, 0);
       return;
-    }
-
-    // Stuck detection: if speed is near zero for too long while input is applied
-    const vel = this.chassisBody.velocity;
-    const speed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
-    if (speed < 0.1 && Math.abs(this.engineForce) > 100) {
-      // Nudge upward to unstick from terrain/objects
-      this.chassisBody.velocity.y = Math.max(this.chassisBody.velocity.y, 2);
     }
 
     // Sync mesh to physics
