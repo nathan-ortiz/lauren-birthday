@@ -85,7 +85,7 @@ export function createTrees(scene, world) {
       return d < 10;
     });
     if (tooClose) continue;
-    if (Math.abs(z - 15) < 6 && x > -45 && x < 45) continue; // river
+    if (Math.abs(z - 15) < 10 && x > -45 && x < 45) continue; // river + banks
 
     const scale = rand(0.7, 1.3);
     let tree;
