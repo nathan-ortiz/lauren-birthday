@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { COLORS } from '../utils/Colors.js';
 import { getMaterial } from '../utils/Materials.js';
+import { getTerrainHeight } from '../scene/Terrain.js';
 
 export class Car {
   constructor(scene, world, carMaterial) {
@@ -171,7 +172,16 @@ export class Car {
       return;
     }
 
-    this.mesh.position.copy(this.body.position);
+    // Ride terrain height — car follows the ground/hill surface
+    const pos = this.body.position;
+    const terrainY = getTerrainHeight(pos.x, pos.z);
+    const carBottom = terrainY + 0.5; // half the chassis height above terrain
+    if (pos.y < carBottom) {
+      pos.y = carBottom;
+      if (this.body.velocity.y < 0) this.body.velocity.y = 0;
+    }
+
+    this.mesh.position.copy(pos);
     this.mesh.quaternion.copy(this.body.quaternion);
 
     // Wheels follow car body exactly

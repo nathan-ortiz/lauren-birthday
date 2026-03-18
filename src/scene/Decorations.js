@@ -4,8 +4,15 @@ import { getMaterial, getEmissiveMaterial } from '../utils/Materials.js';
 import { rand } from '../utils/Helpers.js';
 
 export function createDecorations(scene) {
-  // Rocks
+  // Rocks — avoid station areas
+  const avoidZones = [[0, 0], [0, 5], [0, 8], [30, -25], [-35, 22], [15, 22], [-20, -35]];
   for (let i = 0; i < 40; i++) {
+    const rx = rand(-50, 50);
+    const rz = rand(-50, 50);
+    // Skip if too close to any station/text
+    const tooClose = avoidZones.some(([ax, az]) => Math.sqrt((rx-ax)**2 + (rz-az)**2) < 8);
+    if (tooClose) continue;
+
     const size = rand(0.3, 1.0);
     const geo = new THREE.DodecahedronGeometry(size, 0);
     const pos = geo.attributes.position;
@@ -17,7 +24,7 @@ export function createDecorations(scene) {
     geo.computeVertexNormals();
     const color = Math.random() > 0.5 ? 0x888888 : 0x9a8a7a;
     const rock = new THREE.Mesh(geo, getMaterial(color));
-    rock.position.set(rand(-50, 50), size * 0.3, rand(-50, 50));
+    rock.position.set(rx, size * 0.3, rz);
     rock.rotation.set(rand(0, 1), rand(0, 1), rand(0, 1));
     rock.castShadow = true;
     scene.add(rock);

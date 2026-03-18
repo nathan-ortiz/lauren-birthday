@@ -64,13 +64,15 @@ function createBush(size = 1, color = COLORS.treeLeaves) {
 export function createTrees(scene, world) {
   const trees = [];
 
-  // Station positions to avoid
+  // Station positions and key areas to avoid (with radius 12)
   const avoid = [
-    [0, 0],       // spawn
+    [0, 0],       // spawn area
+    [0, 5],       // LAUREN text
+    [0, 8],       // HAPPY BIRTHDAY text
     [30, -25],    // train
-    [-35, 15],    // bridge
-    [15, 15],     // kayak
-    [-20, -35],   // log hill
+    [-35, 22],    // bridge
+    [15, 22],     // kayak
+    [-20, -35],   // log hill (wider avoidance)
   ];
 
   const treeCount = 120;
@@ -82,7 +84,9 @@ export function createTrees(scene, world) {
     // Skip if too close to stations or river
     const tooClose = avoid.some(([ax, az]) => {
       const d = Math.sqrt((x - ax) ** 2 + (z - az) ** 2);
-      return d < 10;
+      // Extra clearance for hill area
+      const radius = (ax === -20 && az === -35) ? 20 : 12;
+      return d < radius;
     });
     if (tooClose) continue;
     if (Math.abs(z - 22) < 10 && x > -45 && x < 45) continue; // river + banks

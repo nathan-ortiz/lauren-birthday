@@ -109,7 +109,15 @@ function interpolatePath(x1, z1, x2, z2, steps) {
   return pts;
 }
 
-// No longer needed — terrain is flat except for the log hill
+// Returns terrain height at any world XZ position
 export function getTerrainHeight(x, z) {
-  return 0;
+  let y = 0;
+  // Log station hill at (-20, -35)
+  const dxH = x - (-20);
+  const dzH = z - (-35);
+  const distH = Math.sqrt(dxH * dxH + dzH * dzH);
+  if (distH < 18) {
+    y = Math.cos((distH / 18) * Math.PI * 0.5) * 5;
+  }
+  return y;
 }

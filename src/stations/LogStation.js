@@ -33,21 +33,13 @@ export function createLogStation(scene, world) {
     group.add(band);
   }
 
-  // Cross-section caps — simple painted circles, no thin torus rings
+  // Cross-section caps — single flat circle per end, no overlapping geometry
   for (const side of [-5, 5]) {
-    // Outer cap (lighter wood)
     const capGeo = new THREE.CircleGeometry(1.3, 12);
     const cap = new THREE.Mesh(capGeo, getMaterial(0xd4a76a));
     cap.position.set(side, 1.4, 0);
     cap.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
     group.add(cap);
-
-    // Inner circle for heartwood look
-    const innerGeo = new THREE.CircleGeometry(0.7, 10);
-    const inner = new THREE.Mesh(innerGeo, getMaterial(0xc49560));
-    inner.position.set(side > 0 ? side + 0.02 : side - 0.02, 1.4, 0);
-    inner.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
-    group.add(inner);
   }
 
   // Mushrooms
@@ -89,13 +81,7 @@ export function createLogStation(scene, world) {
   physicsBody.quaternion.setFromEuler(0, 0, Math.PI / 2);
   world.addBody(physicsBody);
 
-  // Hill collision — a cone shape creates a natural drivable slope
-  const hillBody = new CANNON.Body({
-    type: CANNON.Body.STATIC,
-    shape: new CANNON.Cylinder(2, 18, 6, 16), // narrow top, wide base, gentle slope
-    position: new CANNON.Vec3(pos.x, 2.5, pos.z), // half-height above ground
-  });
-  world.addBody(hillBody);
+  // Hill traversal handled by car's terrain-following system — no physics body needed
 
   return {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),
