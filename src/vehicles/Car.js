@@ -98,14 +98,14 @@ export class Car {
     const yr = e.y;
 
     // FORWARD = +Z direction (away from camera, toward headlights)
-    // sin(yr) = X component, cos(yr) = Z component of forward vector
-    const accel = 0.6; // velocity increment per frame
+    // Direct velocity change per frame — feels immediate and responsive
+    const accel = 1.8;
     if (forward) {
       this.body.velocity.x += Math.sin(yr) * accel;
       this.body.velocity.z += Math.cos(yr) * accel;
     } else if (backward) {
-      this.body.velocity.x -= Math.sin(yr) * accel * 0.5;
-      this.body.velocity.z -= Math.cos(yr) * accel * 0.5;
+      this.body.velocity.x -= Math.sin(yr) * accel * 0.6;
+      this.body.velocity.z -= Math.cos(yr) * accel * 0.6;
     }
 
     // Steering
@@ -137,8 +137,8 @@ export class Car {
     const yr = e.y;
 
     if (Math.abs(fa) > 0.1) {
-      this.body.velocity.x += Math.sin(yr) * fa * 0.6;
-      this.body.velocity.z += Math.cos(yr) * fa * 0.6;
+      this.body.velocity.x += Math.sin(yr) * fa * 1.8;
+      this.body.velocity.z += Math.cos(yr) * fa * 1.8;
     }
     if (Math.abs(sa) > 0.1) {
       this.body.angularVelocity.y = sa * 2.5;

@@ -41,10 +41,15 @@ function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bo
     ctx.fillText(text[i], 64, 82);
     const texture = new THREE.CanvasTexture(canvas);
 
-    // Single material applied to all faces — letter appears on every face
-    const mat = new THREE.MeshStandardMaterial({ map: texture, flatShading: true });
+    // Solid color material for most faces, textured only on -Z face (faces car/user)
+    const solidMat = new THREE.MeshStandardMaterial({ color, flatShading: true });
+    const faceMat = new THREE.MeshStandardMaterial({ map: texture, flatShading: true });
+
+    // BoxGeometry face order: +X, -X, +Y, -Y, +Z, -Z
+    // The -Z face (index 5) faces toward the car/camera at spawn
+    const materials = [solidMat, solidMat, solidMat, solidMat, solidMat, faceMat];
     const geo = new THREE.BoxGeometry(size, size * 1.4, size * 0.5);
-    const mesh = new THREE.Mesh(geo, mat);
+    const mesh = new THREE.Mesh(geo, materials);
     mesh.castShadow = true;
 
     const x = startX + i * spacing;

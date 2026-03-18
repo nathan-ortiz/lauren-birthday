@@ -4,9 +4,8 @@ import { getMaterial } from '../utils/Materials.js';
 import { rand } from '../utils/Helpers.js';
 
 export function createTerrain(scene) {
-  // Main ground plane with gentle hills
   const size = 120;
-  const segments = 80;
+  const segments = 60;
   const geo = new THREE.PlaneGeometry(size, size, segments, segments);
   geo.rotateX(-Math.PI / 2);
 
@@ -19,30 +18,30 @@ export function createTerrain(scene) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
 
-    // Gentle rolling hills
-    let y = 0;
-    y += Math.sin(x * 0.05) * Math.cos(z * 0.05) * 1.5;
-    y += Math.sin(x * 0.1 + 1) * Math.cos(z * 0.08 + 2) * 0.8;
+    // FLAT terrain — physics ground is flat at y=0, so visual must match
+    // Only very subtle variation (< 0.1) for visual interest, not enough to clip
+    let y = Math.sin(x * 0.15) * Math.cos(z * 0.12) * 0.08;
 
     // Raised hill for log station (around x:-20, z:-35)
+    // This has its own physics sphere collision, so the car rides over it
     const dxHill = x - (-20);
     const dzHill = z - (-35);
     const hillDist = Math.sqrt(dxHill * dxHill + dzHill * dzHill);
     if (hillDist < 18) {
-      y += Math.cos((hillDist / 18) * Math.PI * 0.5) * 6;
+      y += Math.cos((hillDist / 18) * Math.PI * 0.5) * 5;
     }
 
-    // Lower for river area (around z:22)
+    // Slight dip for river area (around z:22)
     const riverDist = Math.abs(z - 22);
-    if (riverDist < 8) {
-      y -= Math.cos((riverDist / 8) * Math.PI * 0.5) * 0.5;
+    if (riverDist < 6) {
+      y -= Math.cos((riverDist / 6) * Math.PI * 0.5) * 0.3;
     }
 
     pos.setY(i, y);
 
-    // Vertex colors — blend grass colors
+    // Vertex colors — blend grass shades for visual variety
     const blend = (Math.sin(x * 0.3) * Math.cos(z * 0.2) + 1) * 0.5;
-    const c = grassColor.clone().lerp(grassDarkColor, blend * 0.5 + Math.random() * 0.1);
+    const c = grassColor.clone().lerp(grassDarkColor, blend * 0.4 + Math.random() * 0.08);
     colors[i * 3] = c.r;
     colors[i * 3 + 1] = c.g;
     colors[i * 3 + 2] = c.b;
@@ -59,8 +58,6 @@ export function createTerrain(scene) {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // Grid overlay removed — looked too stark, not warm enough
-
   // Tile paths connecting stations
   createPaths(scene);
 
@@ -73,17 +70,12 @@ function createPaths(scene) {
   const tileMat2 = getMaterial(COLORS.sand);
 
   const paths = [
-    // From spawn (0, 0) to Train Station (30, -25)
     ...interpolatePath(0, 0, 30, -25, 20),
-    // From spawn to Bridge (-35, 22)
     ...interpolatePath(0, 0, -35, 22, 25),
-    // From spawn to Kayak (15, 22)
     ...interpolatePath(0, 0, 15, 22, 15),
-    // From spawn to Log Hill (-20, -35)
     ...interpolatePath(0, 0, -20, -30, 20),
   ];
 
-  // Deduplicate tiles that overlap near the center (prevents Z-fighting flicker)
   const placed = new Set();
   paths.forEach(([x, z], i) => {
     const key = `${Math.round(x * 2)},${Math.round(z * 2)}`;
@@ -91,7 +83,7 @@ function createPaths(scene) {
     placed.add(key);
 
     const tile = new THREE.Mesh(tileGeo, i % 3 === 0 ? tileMat2 : tileMat);
-    tile.position.set(x, 0.05 + getTerrainHeight(x, z), z);
+    tile.position.set(x, 0.05, z);
     tile.rotation.y = rand(-0.1, 0.1);
     tile.receiveShadow = true;
     scene.add(tile);
@@ -109,17 +101,7 @@ function interpolatePath(x1, z1, x2, z2, steps) {
   return pts;
 }
 
+// No longer needed — terrain is flat except for the log hill
 export function getTerrainHeight(x, z) {
-  let y = 0;
-  y += Math.sin(x * 0.05) * Math.cos(z * 0.05) * 1.5;
-  y += Math.sin(x * 0.1 + 1) * Math.cos(z * 0.08 + 2) * 0.8;
-
-  const dxHill = x - (-20);
-  const dzHill = z - (-35);
-  const hillDist = Math.sqrt(dxHill * dxHill + dzHill * dzHill);
-  if (hillDist < 18) {
-    y += Math.cos((hillDist / 18) * Math.PI * 0.5) * 6;
-  }
-
-  return y;
+  return 0;
 }
