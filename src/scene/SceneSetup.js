@@ -45,9 +45,23 @@ export function createScene() {
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
 
-  // Sky: use the canvas texture directly as scene background
-  // No dome sphere — it was covering everything with a broken white texture
+  // Flat background as fallback
   scene.background = skyTexture;
+
+  // 3D sky dome for parallax — camera moves inside this sphere
+  // so clouds shift naturally with perspective changes
+  const skyDome = new THREE.Mesh(
+    new THREE.SphereGeometry(190, 32, 20),
+    new THREE.MeshBasicMaterial({
+      map: skyTexture,
+      side: THREE.BackSide,
+      toneMapped: false, // CRITICAL: prevent ACES tone mapping from washing it out
+    })
+  );
+  scene.add(skyDome);
+
+  // Export so main.js can move it with the camera
+  scene._skyDome = skyDome;
 
   // No fog — was causing white edges
   // scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);

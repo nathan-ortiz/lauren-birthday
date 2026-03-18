@@ -158,6 +158,11 @@ async function init() {
     petals.update(delta);
     updateBirthdayText(letters, bodies);
 
+    // Keep sky dome centered on camera so it always surrounds the view
+    if (scene._skyDome) {
+      scene._skyDome.position.copy(camera.position);
+    }
+
     renderer.render(scene, camera);
   }
 
