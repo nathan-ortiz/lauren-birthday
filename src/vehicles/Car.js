@@ -272,27 +272,34 @@ export class Car {
       g.add(hinge);
     }
 
-    // ── Gold treasure overflowing ──
-    for (let i = 0; i < 20; i++) {
-      const sz = 0.12 * S * (0.7 + Math.random() * 0.6);
+    // ── Gold fill — flat layer filling the chest to the brim ──
+    const goldFill = new THREE.Mesh(
+      new THREE.BoxGeometry(1.8 * S, 0.35 * S, 1.1 * S), goldShiny);
+    goldFill.position.set(0, 0.85 * S, 0);
+    g.add(goldFill);
+
+    // ── Coins on top of the fill — bigger, packed tightly ──
+    for (let i = 0; i < 16; i++) {
+      const sz = 0.18 * S * (0.8 + Math.random() * 0.4);
       const coin = new THREE.Mesh(new THREE.SphereGeometry(sz, 5, 4), goldShiny);
-      const cx = (Math.random() - 0.5) * 1.6 * S;
-      const cz = (Math.random() - 0.5) * 0.9 * S;
-      const cy = 0.7 * S + Math.random() * 0.55 * S;
+      const cx = (Math.random() - 0.5) * 1.5 * S;
+      const cz = (Math.random() - 0.5) * 0.8 * S;
+      const cy = 1.0 * S + Math.random() * 0.25 * S;
       coin.position.set(cx, cy, cz);
       g.add(coin);
     }
-    // Gems — evenly distributed: front-left, center-back, front-right
+
+    // ── Gems sitting prominently on top ──
     const gemDefs = [
-      { color: 0xe84545, x: -0.5, z: 0.25, y: 1.1, s: 0.14 },  // red front-left
-      { color: 0x4488ee, x: 0.1, z: -0.2, y: 1.05, s: 0.12 },   // blue center-back
-      { color: 0xe84545, x: 0.55, z: 0.2, y: 1.08, s: 0.13 },   // red front-right
+      { color: 0xe84545, x: -0.45, z: 0.2, y: 1.2, s: 0.18 },  // red left
+      { color: 0x4488ee, x: 0.0, z: -0.15, y: 1.25, s: 0.16 },  // blue center
+      { color: 0xe84545, x: 0.5, z: 0.15, y: 1.2, s: 0.17 },   // red right
     ];
     for (const gd of gemDefs) {
       const gem = new THREE.Mesh(
         new THREE.OctahedronGeometry(gd.s * S, 0),
         new THREE.MeshStandardMaterial({
-          color: gd.color, emissive: gd.color, emissiveIntensity: 0.5, flatShading: true,
+          color: gd.color, emissive: gd.color, emissiveIntensity: 0.6, flatShading: true,
         }),
       );
       gem.position.set(gd.x * S, gd.y * S, gd.z * S);
