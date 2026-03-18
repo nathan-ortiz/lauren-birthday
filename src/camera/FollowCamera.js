@@ -4,8 +4,8 @@ export class FollowCamera {
   constructor(camera, isMobile) {
     this.camera = camera;
     this.isMobile = isMobile;
-    this.baseOffset = new THREE.Vector3(0, 7, -12);
-    this.lookOffset = new THREE.Vector3(0, 1.5, 5);
+    this.baseOffset = new THREE.Vector3(0, 9, -15);
+    this.lookOffset = new THREE.Vector3(0, 1, 4);
     this.lerpFactor = 0.08;
     this.currentLookTarget = new THREE.Vector3();
 
@@ -60,9 +60,9 @@ export class FollowCamera {
         // Horizontal: mouse X position
         const nx = (e.clientX / window.innerWidth - 0.5) * 2;
         this.orbitTarget = -nx * Math.PI * 0.15;
-        // Vertical: mouse Y position — top of screen = look up, bottom = look down
+        // Vertical: mouse Y position — subtle, just shifts camera height slightly
         const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-        this.pitchTarget = ny * 4; // ±4 units of height adjustment
+        this.pitchTarget = ny * 2; // ±2 units — subtle, won't disorient
       });
     }
   }

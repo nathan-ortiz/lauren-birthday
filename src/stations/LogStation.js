@@ -90,13 +90,21 @@ export function createLogStation(scene, world) {
   physicsBody.quaternion.setFromEuler(0, 0, Math.PI / 2);
   world.addBody(physicsBody);
 
-  // Hill collision — wide gentle sphere so car can drive up
-  const hillBody = new CANNON.Body({
-    type: CANNON.Body.STATIC,
-    shape: new CANNON.Sphere(14),
-    position: new CANNON.Vec3(pos.x, pos.y - 10, pos.z),
-  });
-  world.addBody(hillBody);
+  // Hill collision — stacked flat boxes forming a climbable ramp
+  // Each ring is a flat cylinder at increasing heights
+  const hillSteps = 8;
+  for (let s = 0; s < hillSteps; s++) {
+    const t = s / hillSteps;
+    const radius = 16 * (1 - t * 0.6); // wider at base, narrower at top
+    const height = 0.8;
+    const y = s * height;
+    const stepBody = new CANNON.Body({
+      type: CANNON.Body.STATIC,
+      shape: new CANNON.Cylinder(radius, radius, height, 12),
+      position: new CANNON.Vec3(pos.x, y + height / 2, pos.z),
+    });
+    world.addBody(stepBody);
+  }
 
   return {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),

@@ -4,22 +4,49 @@ import { COLORS } from '../utils/Colors.js';
 export function createScene() {
   const scene = new THREE.Scene();
 
-  // Sky gradient
-  const canvas = document.createElement('canvas');
-  canvas.width = 2;
-  canvas.height = 256;
-  const ctx = canvas.getContext('2d');
-  const gradient = ctx.createLinearGradient(0, 0, 0, 256);
-  gradient.addColorStop(0, '#87CEEB');
-  gradient.addColorStop(0.6, '#c8e6f5');
-  gradient.addColorStop(1, '#ffecd2');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 2, 256);
-  const skyTexture = new THREE.CanvasTexture(canvas);
+  // Warm Pixar-style sky gradient — blue top, warm peach horizon
+  const skyCanvas = document.createElement('canvas');
+  skyCanvas.width = 512;
+  skyCanvas.height = 512;
+  const ctx = skyCanvas.getContext('2d');
+
+  // Base gradient — warm sky blue to soft peach
+  const grad = ctx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, '#6db3f2');    // clear blue
+  grad.addColorStop(0.35, '#87CEEB'); // light sky blue
+  grad.addColorStop(0.65, '#b8dff5'); // pale blue
+  grad.addColorStop(0.85, '#fce8d5'); // warm peach
+  grad.addColorStop(1, '#ffecd2');    // golden horizon
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Soft cloud puffs — white, blurred, scattered in upper half
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+  const cloudPositions = [
+    [80, 100, 60], [200, 80, 45], [350, 120, 55], [120, 160, 40],
+    [400, 90, 50], [280, 140, 35], [50, 180, 45], [450, 160, 30],
+    [160, 60, 50], [320, 70, 40],
+  ];
+  for (const [cx, cy, r] of cloudPositions) {
+    // Draw each cloud as overlapping ellipses for soft, natural shape
+    for (let j = 0; j < 4; j++) {
+      ctx.beginPath();
+      ctx.ellipse(
+        cx + (j - 1.5) * r * 0.5,
+        cy + Math.sin(j * 1.5) * r * 0.15,
+        r * (0.6 + j * 0.15),
+        r * 0.5,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+    }
+  }
+
+  const skyTexture = new THREE.CanvasTexture(skyCanvas);
   scene.background = skyTexture;
 
   // Fog
-  scene.fog = new THREE.FogExp2(COLORS.fog, 0.006);
+  scene.fog = new THREE.FogExp2(0xddeeff, 0.004); // light blue-white fog, very subtle
 
   // Hemisphere light
   const hemiLight = new THREE.HemisphereLight(0xffecd2, 0x8ec5c0, 0.8);
