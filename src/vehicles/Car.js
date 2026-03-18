@@ -215,60 +215,83 @@ export class Car {
     this._hasChest = true;
 
     const g = new THREE.Group();
-    const S = 0.25; // tiny scale
+    const S = 0.35;
     const woodDark = getMaterial(0x5c3518);
+    const woodMid = getMaterial(0x7a4a2a);
     const woodLight = getMaterial(0x9b6b3e);
     const gold = getMaterial(0xd4a843);
     const goldShiny = new THREE.MeshStandardMaterial({
-      color: 0xf4c542, emissive: 0xf4c542, emissiveIntensity: 0.5, flatShading: true,
+      color: 0xf4c542, emissive: 0xf4c542, emissiveIntensity: 0.6, flatShading: true,
     });
 
-    // Base
-    const base = new THREE.Mesh(new THREE.BoxGeometry(2.4 * S, 1 * S, 1.4 * S), woodDark);
+    // ── Base box ──
+    const base = new THREE.Mesh(new THREE.BoxGeometry(2.2 * S, 1.0 * S, 1.4 * S), woodDark);
     base.position.y = 0.5 * S;
     g.add(base);
+    // Inner lighter panel
+    const inset = new THREE.Mesh(new THREE.BoxGeometry(2.0 * S, 0.8 * S, 1.2 * S), woodMid);
+    inset.position.y = 0.55 * S;
+    g.add(inset);
 
-    // Lid — open at ~110°
-    const lidGroup = new THREE.Group();
-    const lidGeo = new THREE.CylinderGeometry(0.7 * S, 0.7 * S, 2.4 * S, 8, 1, false, 0, Math.PI);
-    lidGeo.rotateZ(Math.PI / 2);
-    lidGeo.rotateY(Math.PI / 2);
-    const lid = new THREE.Mesh(lidGeo, woodLight);
-    lidGroup.add(lid);
-    // Hinge at back edge of base (z = -0.7*S), pivot open backward
-    lidGroup.position.set(0, 1.0 * S, -0.7 * S);
-    lidGroup.rotation.x = -1.9; // ~110° open
-    g.add(lidGroup);
-
-    // Gold bands on base
-    for (const zOff of [-0.4, 0, 0.4]) {
-      const band = new THREE.Mesh(new THREE.BoxGeometry(2.5 * S, 0.1 * S, 0.08 * S), gold);
-      band.position.set(0, 0.5 * S, zOff * S);
+    // ── Metal bands ──
+    for (const xOff of [-0.8, 0, 0.8]) {
+      const band = new THREE.Mesh(new THREE.BoxGeometry(0.08 * S, 1.05 * S, 1.45 * S), gold);
+      band.position.set(xOff * S, 0.52 * S, 0);
       g.add(band);
     }
 
-    // Treasure inside — gold coins/gems
-    for (let i = 0; i < 6; i++) {
-      const coin = new THREE.Mesh(
-        new THREE.SphereGeometry(0.15 * S * (0.8 + Math.random() * 0.4), 5, 4),
-        goldShiny,
-      );
+    // ── Lid — opens toward camera (+z direction) ──
+    const lidPivot = new THREE.Group();
+    // Pivot point at back top edge of base
+    lidPivot.position.set(0, 1.0 * S, -0.7 * S);
+    const lidGeo = new THREE.CylinderGeometry(
+      0.7 * S, 0.7 * S, 2.2 * S, 8, 1, false, 0, Math.PI);
+    lidGeo.rotateZ(Math.PI / 2);
+    lidGeo.rotateY(Math.PI / 2);
+    const lid = new THREE.Mesh(lidGeo, woodLight);
+    // Offset so the flat edge sits at the pivot
+    lid.position.set(0, 0, 0.7 * S);
+    lidPivot.add(lid);
+    // Gold band on lid
+    const lidBand = new THREE.Mesh(new THREE.BoxGeometry(0.08 * S, 0.08 * S, 1.45 * S), gold);
+    lidBand.position.set(0, 0.05 * S, 0.35 * S);
+    lidPivot.add(lidBand);
+    // Open toward camera: rotate around X so lid swings forward
+    lidPivot.rotation.x = 2.0; // ~115° open toward +z (camera)
+    g.add(lidPivot);
+
+    // ── Gold treasure spilling out ──
+    for (let i = 0; i < 8; i++) {
+      const sz = 0.12 * S * (0.7 + Math.random() * 0.6);
+      const coin = new THREE.Mesh(new THREE.SphereGeometry(sz, 5, 4), goldShiny);
       coin.position.set(
-        (Math.random() - 0.5) * 1.2 * S,
-        0.8 * S + Math.random() * 0.3 * S,
-        (Math.random() - 0.5) * 0.6 * S,
+        (Math.random() - 0.5) * 1.4 * S,
+        0.7 * S + Math.random() * 0.4 * S,
+        (Math.random() - 0.5) * 0.8 * S,
       );
       g.add(coin);
     }
-    // A gem
+    // Red gem centerpiece
     const gem = new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.12 * S, 0),
-      new THREE.MeshStandardMaterial({ color: 0xe84545, emissive: 0xe84545, emissiveIntensity: 0.3, flatShading: true }),
+      new THREE.OctahedronGeometry(0.13 * S, 0),
+      new THREE.MeshStandardMaterial({
+        color: 0xe84545, emissive: 0xe84545, emissiveIntensity: 0.4, flatShading: true,
+      }),
     );
-    gem.position.set(0, 1.0 * S, 0.1 * S);
+    gem.position.set(0, 1.05 * S, 0.15 * S);
     g.add(gem);
 
-    // Mount on roof rack
+    // ── Corner studs ──
+    for (const sx of [-1, 1]) {
+      for (const sz of [-1, 1]) {
+        const stud = new THREE.Mesh(new THREE.SphereGeometry(0.06 * S, 4, 3), gold);
+        stud.position.set(sx * 1.0 * S, 0.1 * S, sz * 0.6 * S);
+        g.add(stud);
+      }
+    }
+
+    // Mount on roof rack — rotated so open side faces backward (toward camera)
+    g.rotation.y = Math.PI; // face the camera (camera is behind the car)
     g.position.set(0, 1.6, -0.2);
     this.mesh.add(g);
   }
