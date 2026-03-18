@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createScene, createRenderer, createCamera } from './scene/SceneSetup.js';
 import { createTerrain } from './scene/Terrain.js';
 import { createWater } from './scene/Water.js';
@@ -34,6 +38,19 @@ async function init() {
   const renderer = createRenderer();
   const camera = createCamera();
   document.getElementById('game-container').appendChild(renderer.domElement);
+
+  // Post-processing: bloom makes emissive materials glow
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+
+  const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.5,   // strength — subtle but visible glow
+    0.4,   // radius — how far the glow spreads
+    0.82   // threshold — only bright/emissive things bloom
+  );
+  composer.addPass(bloomPass);
+  composer.addPass(new OutputPass());
 
   // Physics
   const { world } = createPhysicsWorld();
@@ -85,10 +102,14 @@ async function init() {
     isMobile
   );
 
-  // Handle resize
+  // Handle resize — update renderer AND composer
   window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    composer.setSize(w, h);
+    bloomPass.resolution.set(w, h);
     followCamera.resize();
   });
 
@@ -96,7 +117,7 @@ async function init() {
   let paused = false;
   document.addEventListener('visibilitychange', () => {
     paused = document.hidden;
-    if (!paused) clock.getDelta(); // reset delta to avoid physics explosion
+    if (!paused) clock.getDelta();
   });
 
   // Hide loading, show start screen
@@ -133,8 +154,8 @@ async function init() {
     petals.update(delta);
     updateBirthdayText(letters, bodies);
 
-    // Render
-    renderer.render(scene, camera);
+    // Render with bloom post-processing
+    composer.render();
   }
 
   animate();
