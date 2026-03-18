@@ -53,7 +53,7 @@ async function init() {
   composer.addPass(new OutputPass());
 
   // Physics
-  const { world } = createPhysicsWorld();
+  const { world, carMaterial } = createPhysicsWorld();
 
   // World
   createTerrain(scene);
@@ -65,7 +65,7 @@ async function init() {
   const petals = createPetalParticles(scene);
 
   // Car
-  const car = new Car(scene, world);
+  const car = new Car(scene, world, carMaterial);
 
   // Camera
   const followCamera = new FollowCamera(camera, isMobile);

@@ -10,10 +10,22 @@ export function createPhysicsWorld() {
   world.defaultContactMaterial.friction = 0.3;
   world.defaultContactMaterial.restitution = 0.2;
 
+  // Materials
+  const groundMaterial = new CANNON.Material('ground');
+  const carMaterial = new CANNON.Material('car');
+
+  // Car slides freely on ground — zero friction so velocity changes actually work
+  const carGroundContact = new CANNON.ContactMaterial(groundMaterial, carMaterial, {
+    friction: 0.0,
+    restitution: 0.1,
+  });
+  world.addContactMaterial(carGroundContact);
+
   // Ground
   const groundBody = new CANNON.Body({
     type: CANNON.Body.STATIC,
     shape: new CANNON.Plane(),
+    material: groundMaterial,
   });
   groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   world.addBody(groundBody);
@@ -36,5 +48,5 @@ export function createPhysicsWorld() {
     world.addBody(body);
   });
 
-  return { world, groundBody };
+  return { world, groundBody, carMaterial };
 }

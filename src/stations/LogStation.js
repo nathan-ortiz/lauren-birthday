@@ -92,11 +92,11 @@ export function createLogStation(scene, world) {
   physicsBody.quaternion.setFromEuler(0, 0, Math.PI / 2);
   world.addBody(physicsBody);
 
-  // Hill collision — use a sphere
+  // Hill collision — wide gentle sphere so car can drive up
   const hillBody = new CANNON.Body({
     type: CANNON.Body.STATIC,
-    shape: new CANNON.Sphere(10),
-    position: new CANNON.Vec3(pos.x, pos.y - 6, pos.z),
+    shape: new CANNON.Sphere(14),
+    position: new CANNON.Vec3(pos.x, pos.y - 10, pos.z),
   });
   world.addBody(hillBody);
 

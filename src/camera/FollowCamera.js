@@ -9,27 +9,31 @@ export class FollowCamera {
     this.lerpFactor = 0.08;
     this.currentLookTarget = new THREE.Vector3();
 
-    // Look-around: user can orbit the camera slightly
-    this.orbitAngle = 0; // horizontal orbit offset in radians
+    // Horizontal orbit
+    this.orbitAngle = 0;
     this.orbitTarget = 0;
-    this.orbitSpeed = 0.08; // lerp speed
+
+    // Vertical orbit (pitch adjustment)
+    this.pitchOffset = 0;
+    this.pitchTarget = 0;
+
+    this.orbitSpeed = 0.08;
 
     this.setupControls();
   }
 
   setupControls() {
     if (this.isMobile) {
-      // Two-finger or edge-swipe camera rotation on mobile
       let touchStartX = 0;
+      let touchStartY = 0;
       let isCameraTouch = false;
 
       window.addEventListener('touchstart', (e) => {
-        // Only use right-side touches (above joystick area) for camera
         if (e.touches.length === 1) {
           const touch = e.touches[0];
-          // Right half of screen, or upper portion — camera drag
           if (touch.clientX > window.innerWidth * 0.4) {
             touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
             isCameraTouch = true;
           }
         }
@@ -38,31 +42,41 @@ export class FollowCamera {
       window.addEventListener('touchmove', (e) => {
         if (!isCameraTouch || e.touches.length !== 1) return;
         const dx = e.touches[0].clientX - touchStartX;
-        const raw = -(dx / window.innerWidth) * Math.PI * 0.6;
-        this.orbitTarget = Math.max(-Math.PI * 0.5, Math.min(Math.PI * 0.5, raw));
+        const dy = e.touches[0].clientY - touchStartY;
+        const rawH = -(dx / window.innerWidth) * Math.PI * 0.6;
+        this.orbitTarget = Math.max(-Math.PI * 0.5, Math.min(Math.PI * 0.5, rawH));
+        // Vertical: swipe up = look up (negative pitch offset lowers camera)
+        const rawV = (dy / window.innerHeight) * 6;
+        this.pitchTarget = Math.max(-4, Math.min(6, rawV));
       }, { passive: true });
 
       window.addEventListener('touchend', () => {
         isCameraTouch = false;
         this.orbitTarget = 0;
+        this.pitchTarget = 0;
       }, { passive: true });
     } else {
-      // Desktop: mouse position nudges camera
       window.addEventListener('mousemove', (e) => {
-        // Map mouse X from screen center to orbit angle
-        const normalizedX = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
-        this.orbitTarget = -normalizedX * Math.PI * 0.15; // subtle, max ~27 degrees
+        // Horizontal: mouse X position
+        const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+        this.orbitTarget = -nx * Math.PI * 0.15;
+        // Vertical: mouse Y position — top of screen = look up, bottom = look down
+        const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+        this.pitchTarget = ny * 4; // ±4 units of height adjustment
       });
     }
   }
 
   update(carPosition, carRotationY) {
-    // Smoothly interpolate orbit angle
     this.orbitAngle += (this.orbitTarget - this.orbitAngle) * this.orbitSpeed;
+    this.pitchOffset += (this.pitchTarget - this.pitchOffset) * this.orbitSpeed;
 
-    // Apply orbit angle + car rotation to camera offset
+    // Apply orbit + pitch to camera offset
     const totalRotation = carRotationY + this.orbitAngle;
-    const rotatedOffset = this.baseOffset
+    const adjustedOffset = this.baseOffset.clone();
+    adjustedOffset.y += this.pitchOffset; // raise/lower camera based on mouse Y
+
+    const rotatedOffset = adjustedOffset
       .clone()
       .applyAxisAngle(new THREE.Vector3(0, 1, 0), totalRotation);
 

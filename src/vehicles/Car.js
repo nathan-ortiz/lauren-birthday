@@ -4,9 +4,10 @@ import { COLORS } from '../utils/Colors.js';
 import { getMaterial } from '../utils/Materials.js';
 
 export class Car {
-  constructor(scene, world) {
+  constructor(scene, world, carMaterial) {
     this.scene = scene;
     this.world = world;
+    this.carMaterial = carMaterial;
 
     this.mesh = this.createMesh();
     scene.add(this.mesh);
@@ -82,7 +83,7 @@ export class Car {
   }
 
   setupPhysics() {
-    this.body = new CANNON.Body({ mass: 30 });
+    this.body = new CANNON.Body({ mass: 30, material: this.carMaterial });
     this.body.addShape(new CANNON.Box(new CANNON.Vec3(1, 0.5, 1.75)), new CANNON.Vec3(0, 0.5, 0));
     this.body.position.set(0, 0.5, 0);
     this.body.linearDamping = 0.4;
