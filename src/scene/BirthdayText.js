@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { COLORS } from '../utils/Colors.js';
-import { getMaterial } from '../utils/Materials.js';
 
 export function createBirthdayText(scene, world) {
   const letters = [];
@@ -13,79 +12,89 @@ export function createBirthdayText(scene, world) {
   const letterSize = 1.2;
   const spacing = 1.6;
 
-  // Row 1: "HAPPY BIRTHDAY" — pushed further from spawn so car isn't blocked
-  createTextRow(text1, 0, 0.6, 8, letterSize, spacing, scene, world, letters, bodies);
+  // Row 1: pushed well ahead of spawn so player sees full message
+  createTextRow(text1, 0, 0.6, 14, letterSize, spacing, scene, world, letters, bodies);
 
-  // Row 2: "LAUREN" - bigger, centered, in front of row 1
-  createTextRow(text2, 0, 0.6, 5, letterSize * 1.3, spacing * 1.3, scene, world, letters, bodies);
+  // Row 2: "LAUREN" - bigger, centered, closer to car
+  createTextRow(text2, 0, 0.6, 10, letterSize * 1.3, spacing * 1.3, scene, world, letters, bodies);
 
   return { letters, bodies };
 }
 
+function createLetterCanvas(letter, bgColor) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d');
+  // Colored background
+  ctx.fillStyle = `#${bgColor.toString(16).padStart(6, '0')}`;
+  ctx.fillRect(0, 0, 128, 160);
+  // White letter
+  ctx.fillStyle = '#dddddd'; // slightly off-white to avoid bloom trigger
+  ctx.font = 'bold 100px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(letter, 64, 82);
+  return canvas;
+}
+
 function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bodies) {
   const totalWidth = text.length * spacing;
+  const blockColors = [COLORS.red, COLORS.gold, COLORS.treeLeavesAlt, 0xff6b8a, 0x4fa4e8, 0xe8a63a];
 
   for (let i = 0; i < text.length; i++) {
     if (text[i] === ' ') continue;
 
-    const group = new THREE.Group();
+    const color = blockColors[i % blockColors.length];
 
-    // Main letter block
+    // Create canvas texture with colored bg + letter
+    const canvas = createLetterCanvas(text[i], color);
+    const texture = new THREE.CanvasTexture(canvas);
+
+    // Use 6 materials for the BoxGeometry (one per face)
+    // Face order: +X, -X, +Y, -Y, +Z, -Z
+    const solidMat = new THREE.MeshStandardMaterial({ color, flatShading: true });
+    const frontMat = new THREE.MeshStandardMaterial({ map: texture, flatShading: true });
+
+    // For the -Z face (camera-facing), create a mirrored canvas
+    const mirrorCanvas = createLetterCanvas(text[i], color);
+    const mirrorCtx = mirrorCanvas.getContext('2d');
+    // Re-draw mirrored
+    mirrorCtx.clearRect(0, 0, 128, 160);
+    mirrorCtx.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+    mirrorCtx.fillRect(0, 0, 128, 160);
+    mirrorCtx.save();
+    mirrorCtx.translate(128, 0);
+    mirrorCtx.scale(-1, 1);
+    mirrorCtx.fillStyle = '#dddddd';
+    mirrorCtx.font = 'bold 100px sans-serif';
+    mirrorCtx.textAlign = 'center';
+    mirrorCtx.textBaseline = 'middle';
+    mirrorCtx.fillText(text[i], 64, 82);
+    mirrorCtx.restore();
+    const mirrorTex = new THREE.CanvasTexture(mirrorCanvas);
+    const backMat = new THREE.MeshStandardMaterial({ map: mirrorTex, flatShading: true });
+
+    // Face order: +X, -X, +Y, -Y, +Z, -Z
+    const materials = [
+      solidMat,  // +X (right side)
+      solidMat,  // -X (left side)
+      solidMat,  // +Y (top)
+      solidMat,  // -Y (bottom)
+      frontMat,  // +Z (front, away from initial camera)
+      backMat,   // -Z (back, faces initial camera)
+    ];
+
     const geo = new THREE.BoxGeometry(size, size * 1.4, size * 0.5);
-    const colors = [COLORS.red, COLORS.gold, COLORS.treeLeavesAlt, 0xff6b8a, 0x4fa4e8, 0xe8a63a];
-    const color = colors[i % colors.length];
-    const mat = getMaterial(color);
-    const mesh = new THREE.Mesh(geo, mat);
+    const mesh = new THREE.Mesh(geo, materials);
     mesh.castShadow = true;
-    group.add(mesh);
 
-    // Front face label canvas (faces +Z, visible when looking from -Z)
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 80;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 56px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text[i], 32, 42);
-    const tex = new THREE.CanvasTexture(canvas);
-
-    const labelGeo = new THREE.PlaneGeometry(size * 0.8, size * 1.1);
-    const labelMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
-    const label = new THREE.Mesh(labelGeo, labelMat);
-    label.position.z = size * 0.26;
-    group.add(label);
-
-    // Back face label — mirrored canvas so text reads correctly from behind
-    const backCanvas = document.createElement('canvas');
-    backCanvas.width = 64;
-    backCanvas.height = 80;
-    const backCtx = backCanvas.getContext('2d');
-    backCtx.save();
-    backCtx.translate(64, 0);
-    backCtx.scale(-1, 1);
-    backCtx.fillStyle = '#ffffff';
-    backCtx.font = 'bold 56px sans-serif';
-    backCtx.textAlign = 'center';
-    backCtx.textBaseline = 'middle';
-    backCtx.fillText(text[i], 32, 42);
-    backCtx.restore();
-    const backTex = new THREE.CanvasTexture(backCanvas);
-
-    const backLabelMat = new THREE.MeshBasicMaterial({ map: backTex, transparent: true, depthWrite: false });
-    const labelBack = new THREE.Mesh(labelGeo.clone(), backLabelMat);
-    labelBack.position.z = -size * 0.26;
-    labelBack.rotation.y = Math.PI;
-    group.add(labelBack);
-
-    // Reversed X: camera right-vector is -X, so we flip placement order
-    // so letters read left-to-right on screen
+    // Reversed X so letters read left-to-right from camera behind car
     const x = cx + (totalWidth - spacing) / 2 - i * spacing;
-    group.position.set(x, y + size * 0.7, cz);
-    scene.add(group);
+    mesh.position.set(x, y + size * 0.7, cz);
+    scene.add(mesh);
 
-    // Physics body — lighter so car pushes them easily
+    // Physics body
     const halfExtents = new CANNON.Vec3(size / 2, size * 0.7, size * 0.25);
     const body = new CANNON.Body({
       mass: 3,
@@ -96,7 +105,7 @@ function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bo
     });
     world.addBody(body);
 
-    letters.push(group);
+    letters.push(mesh);
     bodies.push(body);
   }
 }

@@ -5,6 +5,8 @@ export class KeyboardControls {
 
     window.addEventListener('keydown', (e) => {
       this.keys[e.code] = true;
+      // Prevent Space from scrolling the page
+      if (e.code === 'Space') e.preventDefault();
     });
     window.addEventListener('keyup', (e) => {
       this.keys[e.code] = false;
@@ -24,7 +26,13 @@ export class KeyboardControls {
     return this.enabled && (this.keys['ArrowRight'] || this.keys['KeyD']);
   }
   get interact() {
-    return this.keys['Enter'] || this.keys['Space'];
+    return this.keys['Enter'] || this.keys['KeyE'];
+  }
+  get jump() {
+    return this.enabled && this.keys['Space'];
+  }
+  get reset() {
+    return this.keys['KeyR'];
   }
   get escape() {
     return this.keys['Escape'];
@@ -32,7 +40,13 @@ export class KeyboardControls {
 
   consumeInteract() {
     this.keys['Enter'] = false;
+    this.keys['KeyE'] = false;
+  }
+  consumeJump() {
     this.keys['Space'] = false;
+  }
+  consumeReset() {
+    this.keys['KeyR'] = false;
   }
   consumeEscape() {
     this.keys['Escape'] = false;

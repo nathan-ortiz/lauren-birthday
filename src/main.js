@@ -45,9 +45,9 @@ async function init() {
 
   const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.5,   // strength — subtle but visible glow
-    0.4,   // radius — how far the glow spreads
-    0.82   // threshold — only bright/emissive things bloom
+    0.35,  // strength — subtle warm glow
+    0.3,   // radius — tight glow, not washy
+    0.92   // threshold — only strongly emissive things bloom (not white surfaces)
   );
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
@@ -58,7 +58,7 @@ async function init() {
   // World
   createTerrain(scene);
   const water = createWater(scene);
-  createTrees(scene);
+  createTrees(scene, world);
   createDecorations(scene);
   const { letters, bodies } = createBirthdayText(scene, world);
   const particles = createParticles(scene);
@@ -143,6 +143,18 @@ async function init() {
       car.applyJoystickInput(mobileControls.forwardAmount, mobileControls.steerAmount);
     } else {
       car.applyInput(keyboard.forward, keyboard.backward, keyboard.left, keyboard.right);
+    }
+
+    // Jump (Space) — hop over obstacles
+    if (keyboard.jump) {
+      keyboard.consumeJump();
+      car.jump();
+    }
+
+    // Manual reset (R) — unstick the car
+    if (keyboard.reset) {
+      keyboard.consumeReset();
+      car.resetToSpawn();
     }
 
     // Update systems

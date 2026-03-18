@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 import { COLORS } from '../utils/Colors.js';
 import { getMaterial } from '../utils/Materials.js';
 import { rand } from '../utils/Helpers.js';
@@ -60,7 +61,7 @@ function createBush(size = 1, color = COLORS.treeLeaves) {
   return mesh;
 }
 
-export function createTrees(scene) {
+export function createTrees(scene, world) {
   const trees = [];
 
   // Station positions to avoid
@@ -108,15 +109,36 @@ export function createTrees(scene) {
     tree.rotation.y = rand(0, Math.PI * 2);
     scene.add(tree);
     trees.push(tree);
+
+    // Add trunk collision body (cylinder) so car bounces off trees
+    if (world && r < 0.7) { // skip bushes (r >= 0.7)
+      const trunkBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Cylinder(0.3 * scale, 0.3 * scale, 2 * scale, 6),
+        position: new CANNON.Vec3(x, 1 * scale, z),
+      });
+      world.addBody(trunkBody);
+    }
   }
 
   // Cherry blossom cluster near spawn
   for (let i = 0; i < 6; i++) {
     const tree = createRoundTree(rand(3.5, 5.5), COLORS.treeLeavesAlt);
-    tree.position.set(rand(-10, -4), 0, rand(-6, 4));
+    const bx = rand(-12, -5);
+    const bz = rand(-8, 2);
+    tree.position.set(bx, 0, bz);
     tree.rotation.y = rand(0, Math.PI * 2);
     scene.add(tree);
     trees.push(tree);
+
+    if (world) {
+      const trunkBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Cylinder(0.3, 0.3, 2, 6),
+        position: new CANNON.Vec3(bx, 1, bz),
+      });
+      world.addBody(trunkBody);
+    }
   }
 
   return trees;

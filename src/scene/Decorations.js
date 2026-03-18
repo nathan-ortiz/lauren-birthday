@@ -95,9 +95,9 @@ function createLantern(scene, addLight) {
   cap.rotation.y = Math.PI / 4;
   group.add(cap);
 
-  // Real point light for warm glow pool on ground
+  // Warm point light — only a few to avoid performance issues
   if (addLight) {
-    const pointLight = new THREE.PointLight(0xffaa44, 2.0, 8, 1.5);
+    const pointLight = new THREE.PointLight(0xffaa44, 1.0, 6, 2);
     pointLight.position.y = 1.6;
     group.add(pointLight);
   }

@@ -166,9 +166,10 @@ export class Car {
     const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.4, 1.75));
     this.chassisBody = new CANNON.Body({ mass: 80 });
     this.chassisBody.addShape(chassisShape);
-    this.chassisBody.position.set(0, 4, 0); // start above ground, will drop
+    this.chassisBody.position.set(0, 4, -2); // start behind text so player sees it ahead
     this.chassisBody.linearDamping = 0.1;
     this.chassisBody.angularDamping = 0.4;
+    this.chassisBody.allowSleep = false; // NEVER sleep — prevents "stuck" bug
 
     this.vehicle = new CANNON.RaycastVehicle({
       chassisBody: this.chassisBody,
@@ -279,14 +280,30 @@ export class Car {
   }
 
   update() {
-    // Check for flip or out-of-bounds — auto-reset
+    // Check for flip or out-of-bounds
     const pos = this.chassisBody.position;
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.mesh.quaternion);
 
-    if (pos.y < -5 || up.y < 0.3) {
-      // Car is flipped or fell through the world — reset
+    // Fell through the world — hard reset
+    if (pos.y < -10) {
       this.resetToSpawn();
       return;
+    }
+
+    // Bruno-style auto-unstick: if car is tilted badly, pop it upright
+    if (up.y < 0.15) {
+      this.chassisBody.quaternion.set(0, 0, 0, 1);
+      this.chassisBody.velocity.set(0, 5, 0); // pop up
+      this.chassisBody.angularVelocity.set(0, 0, 0);
+      return;
+    }
+
+    // Stuck detection: if speed is near zero for too long while input is applied
+    const vel = this.chassisBody.velocity;
+    const speed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
+    if (speed < 0.1 && Math.abs(this.engineForce) > 100) {
+      // Nudge upward to unstick from terrain/objects
+      this.chassisBody.velocity.y = Math.max(this.chassisBody.velocity.y, 2);
     }
 
     // Sync mesh to physics
@@ -310,8 +327,15 @@ export class Car {
     }
   }
 
+  jump() {
+    // Only jump if near the ground (prevent air-jumping)
+    if (this.chassisBody.position.y < 3) {
+      this.chassisBody.velocity.y = 6;
+    }
+  }
+
   resetToSpawn() {
-    this.chassisBody.position.set(0, 3, 0);
+    this.chassisBody.position.set(0, 3, -2);
     this.chassisBody.quaternion.set(0, 0, 0, 1);
     this.chassisBody.velocity.set(0, 0, 0);
     this.chassisBody.angularVelocity.set(0, 0, 0);

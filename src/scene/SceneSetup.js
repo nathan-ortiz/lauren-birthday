@@ -19,7 +19,7 @@ export function createScene() {
   scene.background = skyTexture;
 
   // Fog
-  scene.fog = new THREE.FogExp2(COLORS.fog, 0.012);
+  scene.fog = new THREE.FogExp2(COLORS.fog, 0.006);
 
   // Hemisphere light
   const hemiLight = new THREE.HemisphereLight(0xffecd2, 0x8ec5c0, 0.8);
