@@ -44,7 +44,6 @@ export function createScene() {
   }
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
-  skyTexture.mapping = THREE.EquirectangularReflectionMapping;
   scene.background = skyTexture;
 
   // Fog

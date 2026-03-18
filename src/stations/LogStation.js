@@ -15,35 +15,35 @@ export function createLogStation(scene, world) {
   hill.receiveShadow = true;
   group.add(hill);
 
-  // === Splash Mountain Log Flume Ride ===
+  // === Splash Mountain Log Flume Ride (box-based, clean look) ===
   const logGroup = new THREE.Group();
   logGroup.position.y = 1.2;
 
-  // Log hull — hollowed-out log shape using a trough (half-cylinder bottom + sides)
   const hullLength = 8;
-  const hullRadius = 1.3;
 
-  // Bottom hull (half cylinder — the boat part)
-  const hullGeo = new THREE.CylinderGeometry(hullRadius, hullRadius * 1.1, hullLength, 12, 1, false, 0, Math.PI);
-  const hullMat = getMaterial(0x6b3a1f); // dark brown log exterior
-  const hull = new THREE.Mesh(hullGeo, hullMat);
-  hull.rotation.x = Math.PI; // flip so open side faces up
-  hull.rotation.y = Math.PI / 2;
-  hull.castShadow = true;
-  logGroup.add(hull);
+  // Log hull — chunky wooden boat shape using boxes
+  // Bottom
+  const bottomGeo = new THREE.BoxGeometry(hullLength, 0.4, 2.2);
+  const hullMat = getMaterial(0x6b3a1f);
+  const bottom = new THREE.Mesh(bottomGeo, hullMat);
+  bottom.castShadow = true;
+  logGroup.add(bottom);
 
-  // Inner hull (lighter wood interior)
-  const innerGeo = new THREE.CylinderGeometry(hullRadius * 0.85, hullRadius * 0.95, hullLength - 0.4, 10, 1, false, 0, Math.PI);
-  const inner = new THREE.Mesh(innerGeo, getMaterial(0xc4956a));
-  inner.rotation.x = Math.PI;
-  inner.rotation.y = Math.PI / 2;
-  inner.position.y = 0.1;
-  logGroup.add(inner);
+  // Left wall
+  const wallGeo = new THREE.BoxGeometry(hullLength, 0.8, 0.25);
+  const lWall = new THREE.Mesh(wallGeo, hullMat);
+  lWall.position.set(0, 0.4, -1.0);
+  logGroup.add(lWall);
 
-  // Flat deck/floor inside the log
-  const floorGeo = new THREE.BoxGeometry(hullLength - 0.5, 0.1, hullRadius * 1.6);
+  // Right wall
+  const rWall = new THREE.Mesh(wallGeo, hullMat);
+  rWall.position.set(0, 0.4, 1.0);
+  logGroup.add(rWall);
+
+  // Interior floor (lighter wood)
+  const floorGeo = new THREE.BoxGeometry(hullLength - 0.4, 0.08, 1.7);
   const floor = new THREE.Mesh(floorGeo, getMaterial(0xb8845a));
-  floor.position.y = 0.15;
+  floor.position.y = 0.22;
   logGroup.add(floor);
 
   // Seats — 3 rows of bench seats inside the log
