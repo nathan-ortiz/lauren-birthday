@@ -33,7 +33,7 @@ export class MobileControls {
       const force = Math.min(data.force, 2) / 2;
       const angle = data.angle.radian;
       this.forwardAmount = Math.sin(angle) * force;
-      this.steerAmount = Math.cos(angle) * force;
+      this.steerAmount = -Math.cos(angle) * force;
     });
 
     this.joystick.on('end', () => {
