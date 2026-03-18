@@ -61,8 +61,8 @@ export function createScene() {
   skyDome.renderOrder = -1; // render before everything else
   scene.add(skyDome);
 
-  // Very light fog — just enough to soften distant objects, NOT enough to create white edges
-  scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
+  // No fog — was causing white edges
+  // scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
 
   // Hemisphere light
   const hemiLight = new THREE.HemisphereLight(0xffecd2, 0x8ec5c0, 0.8);
