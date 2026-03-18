@@ -278,22 +278,23 @@ export class Car {
     goldFill.position.set(0, 0.85 * S, 0);
     g.add(goldFill);
 
-    // ── Coins on top — medium size, nicely packed ──
-    for (let i = 0; i < 14; i++) {
-      const sz = 0.16 * S * (0.8 + Math.random() * 0.4);
+    // ── Coins on top — nicely packed, extra on the right side ──
+    for (let i = 0; i < 16; i++) {
+      const sz = 0.15 * S * (0.8 + Math.random() * 0.4);
       const coin = new THREE.Mesh(new THREE.SphereGeometry(sz, 5, 4), goldShiny);
-      const cx = (Math.random() - 0.5) * 1.5 * S;
+      // Bias slightly right (+x in local = right from camera's POV) to balance
+      const cx = (Math.random() - 0.4) * 1.5 * S;
       const cz = (Math.random() - 0.5) * 0.8 * S;
       const cy = 0.95 * S + Math.random() * 0.2 * S;
       coin.position.set(cx, cy, cz);
       g.add(coin);
     }
 
-    // ── Gems — large, prominent, raised above the gold ──
+    // ── Gems — nestled into the gold, not towering over it ──
     const gemDefs = [
-      { color: 0xe84545, x: -0.45, z: 0.2, y: 1.2, s: 0.22, rx: 0.3 },
-      { color: 0x4488ee, x: 0.05, z: -0.1, y: 1.25, s: 0.20, rx: 0.6 },
-      { color: 0x33bb55, x: 0.5, z: 0.15, y: 1.2, s: 0.21, rx: 0.1 },
+      { color: 0xe84545, x: -0.4, z: 0.15, y: 1.1, s: 0.16, rx: 0.3 },
+      { color: 0x4488ee, x: 0.05, z: -0.1, y: 1.12, s: 0.15, rx: 0.6 },
+      { color: 0x33bb55, x: 0.45, z: 0.12, y: 1.1, s: 0.16, rx: 0.1 },
     ];
     for (const gd of gemDefs) {
       const gem = new THREE.Mesh(
