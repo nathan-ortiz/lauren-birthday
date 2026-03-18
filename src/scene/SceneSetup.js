@@ -45,18 +45,20 @@ export function createScene() {
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
 
-  // Use the sky canvas as BOTH a background texture AND a 3D dome
-  // Background texture ensures no white edges ever
-  scene.background = skyTexture;
+  // Sky blue background color — the dome sphere renders on top of this
+  scene.background = new THREE.Color(0x7bb8ed);
 
-  // Sky dome sphere for parallax depth effect
-  const skyGeo = new THREE.SphereGeometry(200, 32, 16);
+  // Sky dome sphere — large sphere with gradient+clouds rendered from inside
+  // Camera is always inside this sphere, so sky is visible in every direction
+  const skyGeo = new THREE.SphereGeometry(180, 32, 16);
   const skyMat = new THREE.MeshBasicMaterial({
     map: skyTexture,
     side: THREE.BackSide,
-    fog: false, // dome should NOT be affected by fog
+    fog: false,
+    depthWrite: false,
   });
   const skyDome = new THREE.Mesh(skyGeo, skyMat);
+  skyDome.renderOrder = -1; // render before everything else
   scene.add(skyDome);
 
   // Fog
@@ -100,6 +102,7 @@ export function createRenderer() {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.25;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor(0x7bb8ed, 1); // sky blue clear color as fallback
   return renderer;
 }
 
