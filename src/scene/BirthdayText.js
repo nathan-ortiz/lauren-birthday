@@ -9,12 +9,10 @@ export function createBirthdayText(scene, world) {
   const letterSize = 1.2;
   const spacing = 1.6;
 
-  // REVERSED strings — camera behind car flips left/right reading order
-  const text1 = 'YADHTRIB YPPAH';
-  const text2 = 'NERUAL';
-
-  createTextRow(text1, 0, 0.6, 14, letterSize, spacing, scene, world, letters, bodies);
-  createTextRow(text2, 0, 0.6, 10, letterSize * 1.3, spacing * 1.3, scene, world, letters, bodies);
+  // REVERSED strings — camera's right direction is -X, so reversed input reads correctly
+  // Text placed BEHIND the car (negative Z) on dry land, like Bruno Simon's layout
+  createTextRow('YADHTRIB YPPAH', 0, 0, -6, letterSize, spacing, scene, world, letters, bodies);
+  createTextRow('NERUAL', 0, 0, -3, letterSize * 1.3, spacing * 1.3, scene, world, letters, bodies);
 
   return { letters, bodies };
 }
@@ -37,7 +35,7 @@ function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bo
     mesh.castShadow = true;
     group.add(mesh);
 
-    // Letter as a Sprite — ALWAYS faces camera, never mirrored
+    // Letter as a Sprite — always faces camera, never mirrored
     const canvas = document.createElement('canvas');
     canvas.width = 128;
     canvas.height = 160;
@@ -53,7 +51,7 @@ function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bo
     const spriteMat = new THREE.SpriteMaterial({
       map: texture,
       transparent: true,
-      depthWrite: false,
+      depthTest: false, // render on top of block so always visible
     });
     const sprite = new THREE.Sprite(spriteMat);
     sprite.scale.set(size * 0.9, size * 1.2, 1);
@@ -61,7 +59,9 @@ function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bo
     group.add(sprite);
 
     const x = startX + i * spacing;
-    group.position.set(x, y + size * 0.7, cz);
+    // Blocks sit ON the ground — center at half-height above y=0
+    const blockY = y + size * 0.7;
+    group.position.set(x, blockY, cz);
     scene.add(group);
 
     // Physics body
@@ -69,7 +69,7 @@ function createTextRow(text, cx, y, cz, size, spacing, scene, world, letters, bo
     const body = new CANNON.Body({
       mass: 3,
       shape: new CANNON.Box(halfExtents),
-      position: new CANNON.Vec3(x, y + size * 0.7, cz),
+      position: new CANNON.Vec3(x, blockY, cz),
       linearDamping: 0.4,
       angularDamping: 0.6,
     });
