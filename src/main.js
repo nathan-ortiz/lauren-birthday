@@ -125,6 +125,16 @@ async function init() {
   const startScreen = new StartScreen(isMobile);
   await startScreen.show();
 
+  // Start ambient music (after user interaction unlocks audio)
+  try {
+    const bgMusic = new Audio('/audio/ambient.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.25;
+    bgMusic.play().catch(() => {}); // silently fail if autoplay blocked
+  } catch (e) {
+    // No audio — that's fine
+  }
+
   // Start game loop
   const clock = new THREE.Clock();
 
