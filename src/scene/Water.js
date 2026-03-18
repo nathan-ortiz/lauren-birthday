@@ -9,7 +9,7 @@ export function createWater(scene) {
   for (let i = 0; i < segments; i++) {
     const t = i / segments;
     const x = -40 + t * 80;
-    const z = 15 + Math.sin(t * Math.PI * 2) * 8;
+    const z = 22 + Math.sin(t * Math.PI * 2) * 8;
     const width = 6 + Math.sin(t * Math.PI) * 3;
 
     const geo = new THREE.PlaneGeometry(width, 5, 8, 8);
@@ -45,7 +45,7 @@ export function createWater(scene) {
     side: THREE.DoubleSide,
   });
   const widePiece = new THREE.Mesh(wideGeo, wideMat);
-  widePiece.position.set(-35, -0.25, 15);
+  widePiece.position.set(-35, -0.25, 22);
   scene.add(widePiece);
   riverPieces.push(widePiece);
 

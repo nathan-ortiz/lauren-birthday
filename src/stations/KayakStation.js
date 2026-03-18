@@ -5,7 +5,7 @@ import { getMaterial, getEmissiveMaterial } from '../utils/Materials.js';
 
 export function createKayakStation(scene, world) {
   const group = new THREE.Group();
-  const pos = { x: 15, y: -0.1, z: 15 };
+  const pos = { x: 15, y: -0.1, z: 22 };
 
   // Kayak hull — elongated tapered shape
   const hullShape = new THREE.Shape();

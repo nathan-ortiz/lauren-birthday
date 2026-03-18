@@ -32,8 +32,8 @@ export function createTerrain(scene) {
       y += Math.cos((hillDist / 18) * Math.PI * 0.5) * 6;
     }
 
-    // Lower for river area (around z:15)
-    const riverDist = Math.abs(z - 15);
+    // Lower for river area (around z:22)
+    const riverDist = Math.abs(z - 22);
     if (riverDist < 8) {
       y -= Math.cos((riverDist / 8) * Math.PI * 0.5) * 0.5;
     }
@@ -75,10 +75,10 @@ function createPaths(scene) {
   const paths = [
     // From spawn (0, 0) to Train Station (30, -25)
     ...interpolatePath(0, 0, 30, -25, 20),
-    // From spawn to Bridge (-35, 15)
-    ...interpolatePath(0, 0, -35, 15, 25),
-    // From spawn to Kayak (15, 15)
-    ...interpolatePath(0, 0, 15, 15, 12),
+    // From spawn to Bridge (-35, 22)
+    ...interpolatePath(0, 0, -35, 22, 25),
+    // From spawn to Kayak (15, 22)
+    ...interpolatePath(0, 0, 15, 22, 15),
     // From spawn to Log Hill (-20, -35)
     ...interpolatePath(0, 0, -20, -30, 20),
   ];

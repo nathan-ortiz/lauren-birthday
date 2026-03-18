@@ -5,7 +5,7 @@ import { getMaterial, getEmissiveMaterial } from '../utils/Materials.js';
 
 export function createBridgeStation(scene, world) {
   const group = new THREE.Group();
-  const pos = { x: -35, y: 0, z: 15 };
+  const pos = { x: -35, y: 0, z: 22 };
 
   const bridgeColor = 0xc0392b; // International Orange
 

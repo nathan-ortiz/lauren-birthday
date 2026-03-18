@@ -22,152 +22,136 @@ export class Car {
   createMesh() {
     const group = new THREE.Group();
 
-    const bodyGeo = new THREE.BoxGeometry(2, 0.8, 3.5);
-    const body = new THREE.Mesh(bodyGeo, getMaterial(COLORS.carBody));
-    body.position.y = 0.5;
-    body.castShadow = true;
-    group.add(body);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 3.5), getMaterial(COLORS.carBody));
+    body.position.y = 0.5; body.castShadow = true; group.add(body);
 
-    const cabinGeo = new THREE.BoxGeometry(1.7, 0.7, 2);
-    const cabin = new THREE.Mesh(cabinGeo, getMaterial(COLORS.carBody));
-    cabin.position.set(0, 1.15, -0.2);
-    cabin.castShadow = true;
-    group.add(cabin);
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.7, 2), getMaterial(COLORS.carBody));
+    cabin.position.set(0, 1.15, -0.2); cabin.castShadow = true; group.add(cabin);
 
-    const windshieldMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, transparent: true, opacity: 0.5, flatShading: true });
-    const windshield = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.55), windshieldMat);
-    windshield.position.set(0, 1.2, 0.85);
-    windshield.rotation.x = -0.15;
-    group.add(windshield);
+    const wsMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, transparent: true, opacity: 0.5, flatShading: true });
+    const ws = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.55), wsMat);
+    ws.position.set(0, 1.2, 0.85); ws.rotation.x = -0.15; group.add(ws);
 
-    const bumperMat = getMaterial(COLORS.carAccent);
-    const fb = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.25, 0.3), bumperMat);
+    const bMat = getMaterial(COLORS.carAccent);
+    const fb = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.25, 0.3), bMat);
     fb.position.set(0, 0.3, 1.8); group.add(fb);
-    const rb = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.25, 0.3), bumperMat);
+    const rb = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.25, 0.3), bMat);
     rb.position.set(0, 0.3, -1.8); group.add(rb);
 
-    const lightGeo = new THREE.BoxGeometry(0.3, 0.2, 0.15);
-    const hlMat = new THREE.MeshStandardMaterial({ color: COLORS.carLights, emissive: COLORS.carLights, emissiveIntensity: 2.0, flatShading: true });
-    const hl1 = new THREE.Mesh(lightGeo, hlMat); hl1.position.set(-0.7, 0.5, 1.85); group.add(hl1);
-    const hl2 = new THREE.Mesh(lightGeo, hlMat); hl2.position.set(0.7, 0.5, 1.85); group.add(hl2);
-    const strip = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.08, 0.08), hlMat);
-    strip.position.set(0, 0.5, 1.88); group.add(strip);
+    const lGeo = new THREE.BoxGeometry(0.3, 0.2, 0.15);
+    const hlM = new THREE.MeshStandardMaterial({ color: COLORS.carLights, emissive: COLORS.carLights, emissiveIntensity: 2.0, flatShading: true });
+    const hl1 = new THREE.Mesh(lGeo, hlM); hl1.position.set(-0.7, 0.5, 1.85); group.add(hl1);
+    const hl2 = new THREE.Mesh(lGeo, hlM); hl2.position.set(0.7, 0.5, 1.85); group.add(hl2);
+    const sGeo = new THREE.BoxGeometry(1.8, 0.08, 0.08);
+    const s = new THREE.Mesh(sGeo, hlM); s.position.set(0, 0.5, 1.88); group.add(s);
 
-    const tlMat = new THREE.MeshStandardMaterial({ color: 0xff2222, emissive: 0xff2222, emissiveIntensity: 1.8, flatShading: true });
-    const tl1 = new THREE.Mesh(lightGeo, tlMat); tl1.position.set(-0.7, 0.5, -1.85); group.add(tl1);
-    const tl2 = new THREE.Mesh(lightGeo, tlMat); tl2.position.set(0.7, 0.5, -1.85); group.add(tl2);
-    const tlStrip = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.08, 0.08), tlMat);
-    tlStrip.position.set(0, 0.5, -1.88); group.add(tlStrip);
+    const tlM = new THREE.MeshStandardMaterial({ color: 0xff2222, emissive: 0xff2222, emissiveIntensity: 1.8, flatShading: true });
+    const tl1 = new THREE.Mesh(lGeo, tlM); tl1.position.set(-0.7, 0.5, -1.85); group.add(tl1);
+    const tl2 = new THREE.Mesh(lGeo, tlM); tl2.position.set(0.7, 0.5, -1.85); group.add(tl2);
+    const ts = new THREE.Mesh(sGeo.clone(), tlM); ts.position.set(0, 0.5, -1.88); group.add(ts);
 
-    const rack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.06, 1.4), getMaterial(COLORS.carAccent));
+    const rack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.06, 1.4), bMat);
     rack.position.set(0, 1.55, -0.2); group.add(rack);
 
     return group;
   }
 
   createAntenna() {
-    const group = new THREE.Group();
-    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1, 4), getMaterial(COLORS.carAccent));
-    rod.position.set(0, 0.5, 0); group.add(rod);
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 4), getMaterial(COLORS.gold));
-    ball.position.set(0, 1.0, 0); group.add(ball);
-    group.position.set(-0.5, 1.5, -0.8);
-    this.mesh.add(group);
-    this.antenna = group;
+    const g = new THREE.Group();
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1, 4), getMaterial(COLORS.carAccent));
+    r.position.y = 0.5; g.add(r);
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 4), getMaterial(COLORS.gold));
+    b.position.y = 1.0; g.add(b);
+    g.position.set(-0.5, 1.5, -0.8);
+    this.mesh.add(g);
+    this.antenna = g;
   }
 
   createWheels() {
     const wheels = [];
-    const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8);
-    wheelGeo.rotateZ(Math.PI / 2);
-    const wheelMat = getMaterial(COLORS.carAccent);
-    const positions = [[-0.85, 0.4, 1.2], [0.85, 0.4, 1.2], [-0.85, 0.4, -1.2], [0.85, 0.4, -1.2]];
-    for (const [x, y, z] of positions) {
-      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-      wheel.castShadow = true;
-      wheel._localPos = new THREE.Vector3(x, y, z);
-      wheels.push(wheel);
+    const geo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 8);
+    geo.rotateZ(Math.PI / 2);
+    const mat = getMaterial(COLORS.carAccent);
+    for (const [x, y, z] of [[-0.85, 0.4, 1.2], [0.85, 0.4, 1.2], [-0.85, 0.4, -1.2], [0.85, 0.4, -1.2]]) {
+      const w = new THREE.Mesh(geo, mat);
+      w.castShadow = true;
+      w._lp = new THREE.Vector3(x, y, z);
+      wheels.push(w);
     }
     return wheels;
   }
 
   setupPhysics() {
-    const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.5, 1.75));
     this.body = new CANNON.Body({ mass: 30 });
-    this.body.addShape(chassisShape, new CANNON.Vec3(0, 0.5, 0));
-    this.body.position.set(0, 1, 0);
-    this.body.linearDamping = 0.35;
-    this.body.angularDamping = 0.8;
+    this.body.addShape(new CANNON.Box(new CANNON.Vec3(1, 0.5, 1.75)), new CANNON.Vec3(0, 0.5, 0));
+    this.body.position.set(0, 0.5, 0);
+    this.body.linearDamping = 0.4;
+    this.body.angularDamping = 0.85;
     this.body.allowSleep = false;
     this.world.addBody(this.body);
   }
 
   applyInput(forward, backward, left, right) {
     const q = this.body.quaternion;
-    const threeQ = new THREE.Quaternion(q.x, q.y, q.z, q.w);
-    const euler = new THREE.Euler().setFromQuaternion(threeQ, 'YXZ');
-    const yRot = euler.y;
+    const tq = new THREE.Quaternion(q.x, q.y, q.z, q.w);
+    const e = new THREE.Euler().setFromQuaternion(tq, 'YXZ');
+    const yr = e.y;
 
-    // Drive force — strong enough to feel responsive
-    const driveForce = 800;
+    // FORWARD = +Z direction (away from camera, toward headlights)
+    // sin(yr) = X component, cos(yr) = Z component of forward vector
+    const accel = 0.6; // velocity increment per frame
     if (forward) {
-      this.body.velocity.x += -Math.sin(yRot) * driveForce / 30 * (1 / 60);
-      this.body.velocity.z += -Math.cos(yRot) * driveForce / 30 * (1 / 60);
+      this.body.velocity.x += Math.sin(yr) * accel;
+      this.body.velocity.z += Math.cos(yr) * accel;
     } else if (backward) {
-      this.body.velocity.x += Math.sin(yRot) * driveForce * 0.5 / 30 * (1 / 60);
-      this.body.velocity.z += Math.cos(yRot) * driveForce * 0.5 / 30 * (1 / 60);
+      this.body.velocity.x -= Math.sin(yr) * accel * 0.5;
+      this.body.velocity.z -= Math.cos(yr) * accel * 0.5;
     }
 
-    // Steering — set angular velocity directly
+    // Steering
     if (left) {
       this.body.angularVelocity.y = 2.5;
     } else if (right) {
       this.body.angularVelocity.y = -2.5;
     } else {
-      this.body.angularVelocity.y *= 0.85;
+      this.body.angularVelocity.y *= 0.8;
     }
 
     // Speed cap
-    const vel = this.body.velocity;
-    const hSpeed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
-    if (hSpeed > 18) {
-      vel.x *= 18 / hSpeed;
-      vel.z *= 18 / hSpeed;
-    }
+    const v = this.body.velocity;
+    const hs = Math.sqrt(v.x * v.x + v.z * v.z);
+    if (hs > 18) { const s = 18 / hs; v.x *= s; v.z *= s; }
 
-    // Keep upright — lock X/Z rotation
-    euler.x = 0;
-    euler.z = 0;
-    threeQ.setFromEuler(euler);
-    q.set(threeQ.x, threeQ.y, threeQ.z, threeQ.w);
+    // Keep upright
+    e.x = 0; e.z = 0;
+    tq.setFromEuler(e);
+    q.set(tq.x, tq.y, tq.z, tq.w);
     this.body.angularVelocity.x = 0;
     this.body.angularVelocity.z = 0;
   }
 
-  applyJoystickInput(forwardAmount, steerAmount) {
+  applyJoystickInput(fa, sa) {
     const q = this.body.quaternion;
-    const threeQ = new THREE.Quaternion(q.x, q.y, q.z, q.w);
-    const euler = new THREE.Euler().setFromQuaternion(threeQ, 'YXZ');
-    const yRot = euler.y;
+    const tq = new THREE.Quaternion(q.x, q.y, q.z, q.w);
+    const e = new THREE.Euler().setFromQuaternion(tq, 'YXZ');
+    const yr = e.y;
 
-    if (Math.abs(forwardAmount) > 0.1) {
-      const f = -forwardAmount * 800 / 30 * (1 / 60);
-      this.body.velocity.x += Math.sin(yRot) * f;
-      this.body.velocity.z += Math.cos(yRot) * f;
+    if (Math.abs(fa) > 0.1) {
+      this.body.velocity.x += Math.sin(yr) * fa * 0.6;
+      this.body.velocity.z += Math.cos(yr) * fa * 0.6;
     }
-    if (Math.abs(steerAmount) > 0.1) {
-      this.body.angularVelocity.y = steerAmount * 2.5;
+    if (Math.abs(sa) > 0.1) {
+      this.body.angularVelocity.y = sa * 2.5;
     } else {
-      this.body.angularVelocity.y *= 0.85;
+      this.body.angularVelocity.y *= 0.8;
     }
 
-    const vel = this.body.velocity;
-    const hSpeed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
-    if (hSpeed > 18) { vel.x *= 18 / hSpeed; vel.z *= 18 / hSpeed; }
+    const v = this.body.velocity;
+    const hs = Math.sqrt(v.x * v.x + v.z * v.z);
+    if (hs > 18) { const s = 18 / hs; v.x *= s; v.z *= s; }
 
-    euler.x = 0; euler.z = 0;
-    threeQ.setFromEuler(euler);
-    q.set(threeQ.x, threeQ.y, threeQ.z, threeQ.w);
+    e.x = 0; e.z = 0; tq.setFromEuler(e);
+    q.set(tq.x, tq.y, tq.z, tq.w);
     this.body.angularVelocity.x = 0;
     this.body.angularVelocity.z = 0;
   }
@@ -175,7 +159,6 @@ export class Car {
   update() {
     if (this.body.position.y < -10) { this.resetToSpawn(); return; }
 
-    // Auto-upright
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.mesh.quaternion);
     if (up.y < 0.2) {
       this.body.quaternion.set(0, 0, 0, 1);
@@ -187,39 +170,30 @@ export class Car {
     this.mesh.position.copy(this.body.position);
     this.mesh.quaternion.copy(this.body.quaternion);
 
-    // Position wheels attached to car body — wheels just follow, no spin
-    for (const wheel of this.wheelMeshes) {
-      const wp = wheel._localPos.clone().applyQuaternion(this.mesh.quaternion).add(this.mesh.position);
-      wheel.position.copy(wp);
-      // Only apply Y rotation so wheels stay oriented correctly (Z-rotated geometry)
-      const yOnly = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(0, new THREE.Euler().setFromQuaternion(this.mesh.quaternion, 'YXZ').y, 0)
-      );
-      wheel.quaternion.copy(yOnly);
+    // Wheels follow car — only Y rotation applied (no axle spin)
+    const yAngle = new THREE.Euler().setFromQuaternion(this.mesh.quaternion, 'YXZ').y;
+    const yOnlyQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yAngle, 0));
+    for (const w of this.wheelMeshes) {
+      const wp = w._lp.clone().applyQuaternion(this.mesh.quaternion).add(this.mesh.position);
+      w.position.copy(wp);
+      w.quaternion.copy(yOnlyQ);
     }
 
     if (this.antenna) {
-      const vel = this.body.velocity;
-      const speed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
-      this.antenna.rotation.x = Math.sin(Date.now() * 0.01) * 0.1 * Math.min(speed * 0.05, 1);
-      this.antenna.rotation.z = Math.cos(Date.now() * 0.013) * 0.08 * Math.min(speed * 0.05, 1);
+      const sp = Math.sqrt(this.body.velocity.x ** 2 + this.body.velocity.z ** 2);
+      this.antenna.rotation.x = Math.sin(Date.now() * 0.01) * 0.1 * Math.min(sp * 0.05, 1);
     }
   }
 
-  jump() {
-    if (this.body.position.y < 3) this.body.velocity.y = 5;
-  }
+  jump() { if (this.body.position.y < 3) this.body.velocity.y = 5; }
 
   resetToSpawn() {
-    this.body.position.set(0, 1, 0);
+    this.body.position.set(0, 0.5, 0);
     this.body.quaternion.set(0, 0, 0, 1);
     this.body.velocity.set(0, 0, 0);
     this.body.angularVelocity.set(0, 0, 0);
   }
 
   getPosition() { return this.mesh.position; }
-
-  getRotationY() {
-    return new THREE.Euler().setFromQuaternion(this.mesh.quaternion, 'YXZ').y;
-  }
+  getRotationY() { return new THREE.Euler().setFromQuaternion(this.mesh.quaternion, 'YXZ').y; }
 }
