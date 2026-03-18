@@ -1,13 +1,14 @@
 import { dist2D } from '../utils/Helpers.js';
 
 export class StationManager {
-  constructor(stations, promptUI, photoOverlay, keyboard, mobileControls, isMobile) {
+  constructor(stations, promptUI, photoOverlay, keyboard, mobileControls, isMobile, car) {
     this.stations = stations;
     this.promptUI = promptUI;
     this.photoOverlay = photoOverlay;
     this.keyboard = keyboard;
     this.mobileControls = mobileControls;
     this.isMobile = isMobile;
+    this.car = car;
     this.activeStation = null;
     this.overlayOpen = false;
 
@@ -15,6 +16,8 @@ export class StationManager {
     this.discoverable = stations.filter((s) => s.photo);
     this.discovered = new Set();
     this._pendingDiscovery = null;
+    this._pendingSecret = false;
+    this._secretFound = false;
 
     this._createToast();
   }
@@ -125,12 +128,18 @@ export class StationManager {
     this.keyboard.enabled = false;
     this.mobileControls.enabled = false;
 
-    // Track discovery if it's a photo station (not treasure chest)
+    // Track discovery
     if (station.photo && !this.discovered.has(station)) {
       this.discovered.add(station);
       this._pendingDiscovery = true;
     } else {
       this._pendingDiscovery = false;
+    }
+
+    // Track secret treasure chest (video station)
+    if (station.video && !this._secretFound) {
+      this._secretFound = true;
+      this._pendingSecret = true;
     }
 
     if (station.video) {
@@ -147,11 +156,21 @@ export class StationManager {
     this.photoOverlay.hide();
 
     // Show discovery toast after overlay closes (if this was a new find)
-    if (this._pendingDiscovery) {
+    if (this._pendingSecret) {
+      this._pendingSecret = false;
+      setTimeout(() => {
+        this._toastText.textContent = "You've made a secret discovery!";
+        this._toast.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => this._toast.classList.remove('show'), 3500);
+        // Add mini chest to car roof
+        if (this.car) this.car.addMiniTreasureChest();
+      }, 400);
+    } else if (this._pendingDiscovery) {
       this._pendingDiscovery = false;
       setTimeout(() => {
         this._showDiscoveryToast(this.discovered.size, this.discoverable.length);
-      }, 400); // slight delay after overlay fade-out
+      }, 400);
     }
   }
 }

@@ -98,7 +98,7 @@ export function createWaterfallCave(scene, world) {
     position: new THREE.Vector3(chest.cx, 0, chest.cz),
     radius: 6,
     video: '/videos/treasure-chest.mov',
-    caption: 'Congratulations! You found the secret treasure! 🎉',
+    caption: 'Congratulations! You found treasure! 🎉',
     ring: chest.ring,
     update(time) {
       chest.group.rotation.y = Math.sin(time * 0.5) * 0.05;

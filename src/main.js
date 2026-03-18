@@ -88,7 +88,8 @@ async function init() {
     photoOverlay,
     keyboard,
     mobileControls,
-    isMobile
+    isMobile,
+    car
   );
 
   // Handle resize
