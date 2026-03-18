@@ -102,7 +102,7 @@ export function createTrainStation(scene, world) {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),
     radius: 8,
     photo: '/photos/train.jpg',
-    caption: 'Us on the train! 🚂',
+    caption: 'December 28, 2024 🚂',
     ring,
   };
 }

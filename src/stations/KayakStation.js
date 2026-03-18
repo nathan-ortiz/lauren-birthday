@@ -78,7 +78,7 @@ export function createKayakStation(scene, world) {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),
     radius: 7,
     photo: '/photos/kayak.jpg',
-    caption: 'Us kayaking! 🛶',
+    caption: 'June 7, 2024 🛶',
     ring,
     // Bobbing animation
     group,

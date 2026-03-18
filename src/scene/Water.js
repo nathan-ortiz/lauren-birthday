@@ -4,19 +4,20 @@ import { COLORS } from '../utils/Colors.js';
 export function createWater(scene) {
   const riverPieces = [];
 
-  // Create a full, continuous river using overlapping wide planes
-  // River runs from west to east at z≈22, winding slightly
-  const riverLength = 100;
-  const riverWidth = 10;
-  const segments = 30;
+  // Dense, continuous river — 50 overlapping segments
+  const segments = 50;
 
   for (let i = 0; i < segments; i++) {
     const t = i / segments;
-    const x = -50 + t * riverLength;
-    const z = 22 + Math.sin(t * Math.PI * 2.5) * 6;
+    const x = -55 + t * 110;
+    const z = 22 + Math.sin(t * Math.PI * 2.5) * 5;
+    const nextT = (i + 1) / segments;
+    const nextX = -55 + nextT * 110;
+    const nextZ = 22 + Math.sin(nextT * Math.PI * 2.5) * 5;
 
-    // Each piece is wide enough to overlap neighbors for a continuous look
-    const geo = new THREE.PlaneGeometry(riverLength / segments + 4, riverWidth, 6, 6);
+    // Wide pieces that overlap heavily — no gaps
+    const pieceWidth = 110 / segments + 6;
+    const geo = new THREE.PlaneGeometry(pieceWidth, 12, 4, 4);
     geo.rotateX(-Math.PI / 2);
 
     const mat = new THREE.MeshStandardMaterial({
@@ -28,8 +29,7 @@ export function createWater(scene) {
     });
 
     const mesh = new THREE.Mesh(geo, mat);
-    const nextZ = 22 + Math.sin(((i + 1) / segments) * Math.PI * 2.5) * 6;
-    const angle = Math.atan2(nextZ - z, riverLength / segments);
+    const angle = Math.atan2(nextZ - z, nextX - x);
     mesh.position.set(x, -0.15, z);
     mesh.rotation.y = angle;
     mesh.receiveShadow = true;
@@ -37,30 +37,28 @@ export function createWater(scene) {
     riverPieces.push(mesh);
   }
 
-  // Wider pool section near bridge (x=-35, z=22)
-  const poolGeo = new THREE.PlaneGeometry(22, 16, 10, 10);
+  // Wider pool at bridge
+  const poolGeo = new THREE.PlaneGeometry(24, 18, 8, 8);
   poolGeo.rotateX(-Math.PI / 2);
-  const poolMat = new THREE.MeshStandardMaterial({
+  const pool = new THREE.Mesh(poolGeo, new THREE.MeshStandardMaterial({
     color: COLORS.waterDeep,
     transparent: true,
     opacity: 0.65,
     flatShading: true,
     side: THREE.DoubleSide,
-  });
-  const pool = new THREE.Mesh(poolGeo, poolMat);
+  }));
   pool.position.set(-35, -0.18, 22);
   scene.add(pool);
   riverPieces.push(pool);
 
   return {
     update(time) {
-      // Gentle wave animation
       for (const mesh of riverPieces) {
         const pos = mesh.geometry.attributes.position;
-        for (let i = 0; i < pos.count; i++) {
-          const x = pos.getX(i);
-          const z = pos.getZ(i);
-          pos.setY(i, Math.sin(time * 2 + x * 0.3 + z * 0.2) * 0.12);
+        for (let j = 0; j < pos.count; j++) {
+          const px = pos.getX(j);
+          const pz = pos.getZ(j);
+          pos.setY(j, Math.sin(time * 1.5 + px * 0.4 + pz * 0.3) * 0.1);
         }
         pos.needsUpdate = true;
         mesh.geometry.computeVertexNormals();

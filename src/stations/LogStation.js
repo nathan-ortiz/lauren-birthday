@@ -115,7 +115,7 @@ export function createLogStation(scene, world) {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),
     radius: 10,
     photo: '/photos/splash-mountain.jpg',
-    caption: 'Splash Mountain! 🎢',
+    caption: 'July 3, 2022 🎢',
     ring: glowRing,
   };
 }

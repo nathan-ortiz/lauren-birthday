@@ -136,7 +136,7 @@ export function createBridgeStation(scene, world) {
     position: new THREE.Vector3(pos.x, pos.y, pos.z),
     radius: 10,
     photo: '/photos/golden-gate.jpg',
-    caption: 'Us in San Francisco! 🌉',
+    caption: 'May 29, 2025 🌉',
     ring,
   };
 }

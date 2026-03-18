@@ -49,11 +49,12 @@
     }
 
     /* Start Screen */
+    /* Animal Crossing-inspired start screen */
     #start-screen {
       position: fixed;
       inset: 0;
       z-index: 90;
-      background: linear-gradient(135deg, rgba(252,228,200,0.95) 0%, rgba(255,236,210,0.95) 100%);
+      background: linear-gradient(180deg, #7ec8e3 0%, #aee1f0 40%, #d4f0d4 70%, #8bc48a 100%);
       display: none;
       flex-direction: column;
       align-items: center;
@@ -64,35 +65,49 @@
       padding: 20px;
     }
     #start-screen h1 {
-      font-family: 'Caveat', cursive;
-      font-size: clamp(2.5rem, 8vw, 5rem);
-      color: #e84545;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+      font-family: 'Quicksand', sans-serif;
+      font-size: clamp(2.2rem, 7vw, 3.8rem);
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 3px 3px 0 rgba(90,160,90,0.5), 0 0 20px rgba(255,255,255,0.3);
+      letter-spacing: 2px;
     }
     #start-screen .subtitle {
-      font-size: clamp(1rem, 3vw, 1.4rem);
-      color: #8b5e3c;
-      margin-bottom: 30px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 36px;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
     }
     #start-screen .start-btn {
-      background: #e84545;
-      color: white;
-      border: none;
-      padding: 16px 48px;
+      background: #f5f0e8;
+      color: #5a8a5a;
+      border: 3px solid rgba(255,255,255,0.6);
+      padding: 18px 56px;
       border-radius: 50px;
-      font-size: 1.2rem;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
       font-family: 'Quicksand', sans-serif;
       font-weight: 700;
       cursor: pointer;
       animation: pulse 2s ease-in-out infinite;
-      box-shadow: 0 4px 20px rgba(232, 69, 69, 0.3);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+      letter-spacing: 1px;
+    }
+    #start-screen .start-btn:hover {
+      background: #fff;
+      transform: scale(1.05);
     }
     #start-screen .instructions {
-      margin-top: 24px;
-      font-size: 0.9rem;
-      color: #a0826d;
-      line-height: 1.6;
+      margin-top: 28px;
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      color: rgba(255,255,255,0.85);
+      line-height: 1.8;
+      font-family: 'Quicksand', sans-serif;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.15);
+      padding: 16px 28px;
+      border-radius: 16px;
+      backdrop-filter: blur(4px);
     }
     @keyframes pulse {
       0%, 100% { transform: scale(1); }

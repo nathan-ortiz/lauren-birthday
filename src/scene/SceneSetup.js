@@ -4,39 +4,39 @@ import { COLORS } from '../utils/Colors.js';
 export function createScene() {
   const scene = new THREE.Scene();
 
-  // Sky dome — a large sphere with gradient + clouds, visible from all angles
+  // 3D Sky dome — a large sphere with gradient + clouds that has proper perspective
   const skyCanvas = document.createElement('canvas');
   skyCanvas.width = 1024;
-  skyCanvas.height = 512;
+  skyCanvas.height = 1024;
   const ctx = skyCanvas.getContext('2d');
 
-  // Gradient: blue sky top → warm horizon bottom
-  const grad = ctx.createLinearGradient(0, 0, 0, 512);
-  grad.addColorStop(0, '#4a90d9');
-  grad.addColorStop(0.3, '#6db3f2');
-  grad.addColorStop(0.55, '#87CEEB');
-  grad.addColorStop(0.75, '#b8dff5');
-  grad.addColorStop(0.9, '#e8d5c4');
-  grad.addColorStop(1, '#ffecd2');
+  // Rich blue gradient — much bluer, less white
+  const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+  grad.addColorStop(0, '#3a7bd5');    // rich blue at zenith
+  grad.addColorStop(0.25, '#5b9de5'); // medium blue
+  grad.addColorStop(0.5, '#7bb8ed');  // sky blue
+  grad.addColorStop(0.7, '#a0d0f5');  // light blue
+  grad.addColorStop(0.85, '#d4e8f5'); // pale blue horizon
+  grad.addColorStop(1, '#e8ddd0');    // warm horizon
   ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 1024, 512);
+  ctx.fillRect(0, 0, 1024, 1024);
 
-  // Soft clouds scattered across the sky
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  // Soft white clouds
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
   const clouds = [
-    [100, 80, 50], [300, 100, 60], [550, 70, 45], [750, 110, 55],
-    [200, 150, 40], [450, 130, 50], [650, 90, 40], [900, 120, 45],
-    [150, 60, 35], [500, 160, 35], [800, 80, 50], [350, 50, 40],
-    [50, 130, 30], [700, 150, 35], [950, 70, 40],
+    [120, 200, 70], [350, 250, 80], [600, 180, 60], [850, 220, 75],
+    [200, 350, 55], [500, 300, 65], [750, 280, 50], [950, 350, 60],
+    [80, 400, 45], [400, 380, 50], [650, 350, 55], [300, 150, 40],
+    [150, 500, 40], [700, 450, 45], [500, 480, 50],
   ];
   for (const [cx, cy, r] of clouds) {
     for (let j = 0; j < 5; j++) {
       ctx.beginPath();
       ctx.ellipse(
-        cx + (j - 2) * r * 0.4,
-        cy + Math.sin(j * 1.3) * r * 0.12,
-        r * (0.5 + j * 0.12),
-        r * 0.45,
+        cx + (j - 2) * r * 0.45,
+        cy + Math.sin(j * 1.2) * r * 0.1,
+        r * (0.5 + j * 0.13),
+        r * 0.4,
         0, 0, Math.PI * 2
       );
       ctx.fill();
@@ -44,10 +44,21 @@ export function createScene() {
   }
 
   const skyTexture = new THREE.CanvasTexture(skyCanvas);
-  scene.background = skyTexture;
+
+  // Sky dome sphere — actual 3D geometry so clouds have parallax with camera movement
+  const skyGeo = new THREE.SphereGeometry(200, 32, 16);
+  const skyMat = new THREE.MeshBasicMaterial({
+    map: skyTexture,
+    side: THREE.BackSide, // render inside of sphere
+  });
+  const skyDome = new THREE.Mesh(skyGeo, skyMat);
+  scene.add(skyDome);
+
+  // Set a solid blue background as fallback (visible if sphere has gaps)
+  scene.background = new THREE.Color(0x5b9de5);
 
   // Fog
-  scene.fog = new THREE.FogExp2(0xc8dff0, 0.005); // matches sky horizon for seamless edge
+  scene.fog = new THREE.FogExp2(0xa0d0f5, 0.004); // blends into sky blue horizon
 
   // Hemisphere light
   const hemiLight = new THREE.HemisphereLight(0xffecd2, 0x8ec5c0, 0.8);
